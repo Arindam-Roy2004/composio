@@ -10,6 +10,8 @@ import { RoadmapLazy } from "@/components/guide/roadmap-lazy";
 import { Blockers, Nuances, OwnershipMatrix, Prerequisites, ScopesTable, Section, SourceList, StepList, Unknowns } from "@/components/guide/sections";
 import { SourcesProvider } from "@/components/guide/sources-context";
 import { Toc } from "@/components/guide/toc";
+import { InShort } from "@/components/guide/in-short";
+import type { Guide } from "@/lib/schema/guide.schema";
 import { EvidenceLegend } from "@/components/home/evidence-legend";
 import { AppLogo } from "@/components/site/app-logo";
 import { Reveal } from "@/components/site/reveal";
@@ -36,18 +38,40 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title, description, openGraph: { title, description, type: "article" }, twitter: { card: "summary_large_image", title, description } };
 }
 
-const TOC = [
-  ["overview", "Overview"],
-  ["roadmap", "Roadmap"],
-  ["prerequisites", "Before you start"],
-  ["steps", "Steps"],
-  ["scopes", "Scopes"],
-  ["nuances", "Nuances"],
-  ["blockers", "Blockers"],
-  ["ownership", "Agent vs you"],
-  ["unknowns", "Unconfirmed"],
-  ["sources", "Sources"],
-] as const;
+type SectionDef = { id: string; nav: string; title: string; description: string; show: (g: Guide) => boolean; render: (g: Guide) => React.ReactNode };
+
+/** Every section in reading order. Empty sections are skipped instead of showing "nothing found" boxes. */
+const SECTIONS: SectionDef[] = [
+  {
+    id: "roadmap",
+    nav: "Roadmap",
+    title: "Roadmap",
+    description: "Every step in order, grouped by who does it. Click a step to read it.",
+    show: (g) => g.steps.length > 1,
+    render: (g) => (
+      <div className="rounded-2xl bg-muted/40 p-1.5 ring-1 ring-border">
+        <div className="rounded-xl bg-background p-3 ring-1 ring-border">
+          <RoadmapLazy guide={g} />
+        </div>
+      </div>
+    ),
+  },
+  { id: "prerequisites", nav: "Before you start", title: "Before you start", description: "Get these ready first so you don’t get stuck halfway.", show: (g) => g.prerequisites.length > 0, render: (g) => <Prerequisites guide={g} /> },
+  { id: "steps", nav: "Steps", title: "Steps", description: "Follow these in order. Each step says who does it and how we know it’s right.", show: (g) => g.steps.length > 0, render: (g) => <StepList guide={g} /> },
+  { id: "scopes", nav: "Permissions", title: "Permissions (scopes)", description: "What your app asks users for. Ask for as few as you can, because some trigger a review.", show: (g) => g.scopes.length > 0, render: (g) => <ScopesTable guide={g} /> },
+  { id: "nuances", nav: "Good to know", title: "Good to know", description: "Small rules that are easy to miss and often cause problems later.", show: (g) => g.nuances.length > 0, render: (g) => <Nuances guide={g} /> },
+  { id: "blockers", nav: "Blockers", title: "If you get stuck", description: "Problems developers commonly hit, and how to get past them.", show: (g) => g.blockers.length > 0, render: (g) => <Blockers guide={g} /> },
+  {
+    id: "ownership",
+    nav: "Agent vs you",
+    title: "What an agent can do for you",
+    description: "The work you can hand to an AI agent, and the parts only you can do.",
+    show: (g) => g.ownership.agentCan.length + g.ownership.humanMust.length > 0,
+    render: (g) => <OwnershipMatrix guide={g} />,
+  },
+  { id: "unknowns", nav: "Unconfirmed", title: "What we couldn’t confirm", description: "Things we couldn’t check. Confirm these before you rely on them.", show: (g) => g.unknowns.length > 0, render: (g) => <Unknowns guide={g} /> },
+  { id: "sources", nav: "Sources", title: "Sources", description: "Where every fact on this page comes from.", show: (g) => g.sources.length > 0, render: (g) => <SourceList guide={g} /> },
+];
 
 const OAUTH_LABEL = {
   oauth2: "OAuth 2.0",
@@ -66,6 +90,9 @@ export default async function GuidePage({ params }: Props) {
   const idx = order.findIndex((g) => g.slug === guide.slug);
   const prev = idx > 0 ? order[idx - 1] : undefined;
   const next = idx >= 0 ? order[idx + 1] : order[0];
+  // With no sources there is nothing to explain beyond the summary and the open questions.
+  const sections = SECTIONS.filter((sec) => sec.show(guide) && (guide.sources.length > 0 || sec.id === "unknowns"));
+  const toc = [["overview", "Overview"] as const, ...sections.map((sec) => [sec.id, sec.nav] as const)];
 
   return (
     <SourcesProvider sources={guide.sources}>
@@ -87,7 +114,7 @@ export default async function GuidePage({ params }: Props) {
                 <div className="min-w-0">
                   <h1 className="truncate text-[32px] leading-tight font-semibold tracking-[-0.035em] sm:text-[38px]">{guide.appName}</h1>
                   <p className="truncate font-mono text-xs text-subtle-foreground">
-                    {domainOf(guide.website)} · {guide.category} · {OAUTH_LABEL[guide.oauthSupport]}
+                    {[domainOf(guide.website), guide.category, OAUTH_LABEL[guide.oauthSupport]].filter(Boolean).join(" · ")}
                   </p>
                 </div>
               </div>
@@ -96,41 +123,16 @@ export default async function GuidePage({ params }: Props) {
           </Reveal>
 
           <GuideView markdown={guideToMarkdown(guide)} actions={<CopyPageButton key="copy-page" guide={guide} />}>
-            <div key="guide-body" className="mt-6 space-y-16">
-              <section key="overview" id="overview" className="scroll-mt-24" aria-label="Overview">
-                <AtAGlance guide={guide} />
+            <div key="guide-body" className="mt-6 space-y-14">
+              <section key="overview" id="overview" className="scroll-mt-24 space-y-3" aria-label="Overview">
+                <InShort guide={guide} />
+                {guide.sources.length > 0 && <AtAGlance guide={guide} />}
               </section>
-              <Section key="roadmap" id="roadmap" title="Roadmap">
-                <div className="rounded-2xl bg-muted/40 p-1.5 ring-1 ring-border">
-                  <div className="rounded-xl bg-background p-3 ring-1 ring-border">
-                    <RoadmapLazy guide={guide} />
-                  </div>
-                </div>
-              </Section>
-              <Section key="prerequisites" id="prerequisites" title="Before you start">
-                <Prerequisites guide={guide} />
-              </Section>
-              <Section key="steps" id="steps" title="Steps">
-                <StepList guide={guide} />
-              </Section>
-              <Section key="scopes" id="scopes" title="Scopes">
-                <ScopesTable guide={guide} />
-              </Section>
-              <Section key="nuances" id="nuances" title="Nuances">
-                <Nuances guide={guide} />
-              </Section>
-              <Section key="blockers" id="blockers" title="Blockers">
-                <Blockers guide={guide} />
-              </Section>
-              <Section key="ownership" id="ownership" title="Agent vs you">
-                <OwnershipMatrix guide={guide} />
-              </Section>
-              <Section key="unknowns" id="unknowns" title="What we couldn’t confirm">
-                <Unknowns guide={guide} />
-              </Section>
-              <Section key="sources" id="sources" title="Sources">
-                <SourceList guide={guide} />
-              </Section>
+              {sections.map((sec) => (
+                <Section key={sec.id} id={sec.id} title={sec.title} description={sec.description}>
+                  {sec.render(guide)}
+                </Section>
+              ))}
               <Pager key="pager" prev={prev} next={next && next.slug !== guide.slug ? next : undefined} />
             </div>
           </GuideView>
@@ -140,7 +142,7 @@ export default async function GuidePage({ params }: Props) {
           <div className="sticky top-20 space-y-8">
             <div>
               <p className="mb-2 text-xs font-medium text-muted-foreground">On this page</p>
-              <Toc items={TOC} />
+              <Toc items={toc} />
             </div>
             <EvidenceLegend compact />
           </div>

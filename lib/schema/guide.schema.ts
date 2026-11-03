@@ -8,7 +8,7 @@ export const Evidence = z.enum(EVIDENCE);
 // community  = forum / blog / StackOverflow (must cite a source)
 // uncertain  = not confirmed; say what is unknown and how to find out
 
-export const DIFFICULTY = ["easy", "moderate", "hard", "gated"] as const;
+export const DIFFICULTY = ["easy", "moderate", "hard", "gated", "unknown"] as const;
 export const OWNER = ["agent", "human", "provider"] as const;
 export const PHASE = ["prepare", "create", "configure", "review", "launch"] as const;
 export const OAUTH_SUPPORT = ["oauth2", "oauth2_pkce", "oauth1", "api_key_only", "none", "unknown"] as const;
@@ -35,7 +35,7 @@ function build(lenient: boolean) {
   const nonNeg = () => (lenient ? z.number() : z.number().min(0));
 
   const verdict = z.object({
-    difficulty: z.enum(DIFFICULTY).describe("gated = partner program / approval that may be refused"),
+    difficulty: z.enum(DIFFICULTY).describe("gated = partner program / approval that may be refused; unknown = not enough evidence to rate"),
     oneLiner: text(200),
     ...claim,
   });
@@ -96,7 +96,7 @@ function build(lenient: boolean) {
 
   const body = {
     appName: text(80),
-    website: url(),
+    website: url().optional(),
     category: text(40),
     oauthSupport: z.enum(OAUTH_SUPPORT),
     verdict,

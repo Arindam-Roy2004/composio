@@ -127,7 +127,14 @@ export function verifyGuide(input: Guide, ctx: VerifyContext): VerifyResult {
     downgrade("approval wait", w, "uncertain", "approval timeline has no source");
   }
 
-  // 4. Difficulty must be consistent with the approval requirement.
+  // 4. A difficulty rating needs evidence. With no sources at all, the guide is "not rated".
+  if (ctx.mode === "agent" && g.sources.length === 0 && g.verdict.difficulty !== "unknown") {
+    notes.push(`Difficulty ${g.verdict.difficulty} → not rated: the guide has no sources`);
+    g.verdict.difficulty = "unknown";
+    downgraded++;
+  }
+
+  // Difficulty must be consistent with the approval requirement.
   if (g.verdict.difficulty === "easy" && (w.required === "always" || w.required === "for_public_use")) {
     g.verdict.difficulty = "moderate";
     notes.push(`Difficulty easy → moderate: approval is required ${w.required.replaceAll("_", " ")}`);

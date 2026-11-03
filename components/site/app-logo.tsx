@@ -9,8 +9,9 @@ import { cn } from "@/lib/utils";
  * Failure is detected with img.decode() rather than onError: an image that starts loading from
  * server-rendered HTML can fail before React attaches handlers, and that event is never replayed.
  */
-export function AppLogo({ name, website, size = 32, className }: { name: string; website: string; size?: number; className?: string }) {
-  const [failed, setFailed] = useState(false);
+export function AppLogo({ name, website, size = 32, className }: { name: string; website?: string; size?: number; className?: string }) {
+  const [failedState, setFailed] = useState(false);
+  const failed = failedState || !website;
   const letter = name.trim().charAt(0).toUpperCase() || "?";
   const ref = useCallback((img: HTMLImageElement | null) => {
     if (!img) return;

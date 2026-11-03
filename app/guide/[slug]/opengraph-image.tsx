@@ -7,7 +7,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = "OAuth app setup guide";
 
-const DIFF_COLOR = { easy: "#4ade80", moderate: "#facc15", hard: "#fb923c", gated: "#f87171" } as const;
+const DIFF_COLOR = { easy: "#4ade80", moderate: "#facc15", hard: "#fb923c", gated: "#f87171", unknown: "#a1a1aa" } as const;
 
 export default async function OgImage({ params }: { params: Promise<{ slug: string }> }) {
   const r = GuideParamsDto.validate(await params);

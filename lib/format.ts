@@ -50,11 +50,11 @@ export function summaryApproval(s: GuideSummary): string {
 }
 
 export const EVIDENCE_META: Record<EvidenceLevel, { label: string; description: string }> = {
-  tested: { label: "Tested", description: "A person actually did this and recorded the date." },
-  probed: { label: "Probed", description: "Our agent reached the page or console and observed it, without signing in." },
-  documented: { label: "Documented", description: "Stated in the provider's official docs or policy pages." },
-  community: { label: "Community", description: "From a source we could not confirm is the provider’s own: a forum, blog, Q&A site or third-party docs." },
-  uncertain: { label: "Uncertain", description: "Not confirmed. We say what is unknown and how to find out." },
+  tested: { label: "Tested", description: "We did this ourselves and recorded the date." },
+  probed: { label: "Seen by agent", description: "Our agent opened the page and saw this, without signing in." },
+  documented: { label: "Official docs", description: "Stated in the provider’s own documentation." },
+  community: { label: "Unofficial", description: "From a source we couldn’t confirm is the provider’s own: a forum, blog or third-party docs." },
+  uncertain: { label: "Unconfirmed", description: "We couldn’t confirm this. Check it before you rely on it." },
 };
 
 export const DIFFICULTY_META: Record<Guide["verdict"]["difficulty"], { label: string; level: number; description: string }> = {
@@ -62,6 +62,7 @@ export const DIFFICULTY_META: Record<Guide["verdict"]["difficulty"], { label: st
   moderate: { label: "Moderate", level: 2, description: "Review only for public distribution or some scopes." },
   hard: { label: "Hard", level: 3, description: "Mandatory verification or security assessment." },
   gated: { label: "Gated", level: 4, description: "Partner programme or approval that may be refused." },
+  unknown: { label: "Not rated", level: 0, description: "Not enough evidence to rate this yet." },
 };
 
 export const OWNER_META = {
@@ -70,7 +71,8 @@ export const OWNER_META = {
   provider: { label: "Provider review", short: "Provider" },
 } as const;
 
-export function domainOf(url: string): string {
+export function domainOf(url: string | undefined): string {
+  if (!url) return "";
   try {
     return new URL(url).hostname.replace(/^www\./, "");
   } catch {
@@ -79,7 +81,7 @@ export function domainOf(url: string): string {
 }
 
 /** Favicon via Google's service, keyed on the registrable domain (developers.notion.com → notion.com). */
-export function faviconUrl(url: string, size = 64): string {
+export function faviconUrl(url: string | undefined, size = 64): string {
   const host = domainOf(url).toLowerCase();
   const labels = host.split(".");
   const twoPart = labels.length > 2 && labels[labels.length - 1]!.length === 2 && ["co", "com", "org", "net", "ac", "gov"].includes(labels[labels.length - 2]!);

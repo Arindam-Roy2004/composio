@@ -2,8 +2,8 @@ import { DIFFICULTY_META } from "@/lib/format";
 import type { Guide } from "@/lib/schema/guide.schema";
 import { cn } from "@/lib/utils";
 
-const COLOR = { easy: "bg-diff-easy", moderate: "bg-diff-moderate", hard: "bg-diff-hard", gated: "bg-diff-gated" } as const;
-const TEXT = { easy: "text-diff-easy", moderate: "text-diff-moderate", hard: "text-diff-hard", gated: "text-diff-gated" } as const;
+const COLOR = { easy: "bg-diff-easy", moderate: "bg-diff-moderate", hard: "bg-diff-hard", gated: "bg-diff-gated", unknown: "bg-muted-foreground" } as const;
+const TEXT = { easy: "text-diff-easy", moderate: "text-diff-moderate", hard: "text-diff-hard", gated: "text-diff-gated", unknown: "text-muted-foreground" } as const;
 
 export function DifficultyMeter({ difficulty, compact }: { difficulty: Guide["verdict"]["difficulty"]; compact?: boolean }) {
   const meta = DIFFICULTY_META[difficulty];

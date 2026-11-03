@@ -85,7 +85,7 @@ export async function runAgent({ query, emit, deps, brain }: RunOpts): Promise<R
   stage("identify", "start");
   const first = await runSearch(state, deps, `${query.display} developer OAuth app create register`, deadline);
   const hits = ("results" in first ? first.results : undefined) ?? [];
-  const officialDomain = pickOfficialDomain(hits, query.slug, query.domain);
+  const officialDomain = pickOfficialDomain(hits, query.slug, query.domain, query.kind === "name" ? query.display : undefined);
   if (officialDomain) state.officialDomains.add(officialDomain);
   stage("identify", "done");
 
@@ -219,7 +219,7 @@ export function assemble(query: SanitizedQuery, draft: GuideDraft, sources: Sour
   for (const b of d.blockers) if (b.stepId) b.stepId = stepMap.get(b.stepId) ?? toSlug(b.stepId, 40);
   d.steps.forEach((s, i) => (s.order = Number.isInteger(s.order) ? s.order : i + 1));
 
-  let website = d.website;
+  let website = d.website ?? `https://${officialDomain}`;
   try {
     const u = new URL(website);
     if (u.protocol !== "https:" || registrableDomain(u.hostname) !== officialDomain) website = `https://${officialDomain}`;
@@ -249,17 +249,16 @@ export function assemble(query: SanitizedQuery, draft: GuideDraft, sources: Sour
 
 /** Deterministic guide for when no credible developer program is found. Everything is uncertain. */
 export function honestUnknownGuide(query: SanitizedQuery, reason: string): Record<string, unknown> {
-  const website = query.domain ? `https://${query.domain}` : `https://www.google.com/search?q=${encodeURIComponent(`${query.display} developer API`)}`;
   return {
     schemaVersion: 1,
     slug: query.slug,
     appName: query.display.slice(0, 80),
-    website,
-    category: "Unknown",
+    ...(query.domain ? { website: `https://${query.domain}` } : {}),
+    category: "",
     oauthSupport: "unknown",
     generatedAt: new Date().toISOString(),
     generatedBy: "agent",
-    verdict: { difficulty: "hard", oneLiner: `${reason} Treat this as unconfirmed.`.slice(0, 200), evidence: "uncertain", sourceIds: [] },
+    verdict: { difficulty: "unknown", oneLiner: `${reason} Treat this as unconfirmed.`.slice(0, 200), evidence: "uncertain", sourceIds: [] },
     time: {
       activeSetup: { minMinutes: 0, maxMinutes: 0, evidence: "uncertain", sourceIds: [] },
       approvalWait: { required: "unknown", minDays: null, maxDays: null, note: "No source found.", evidence: "uncertain", sourceIds: [] },

@@ -34,6 +34,24 @@ describe("pickOfficialDomain", () => {
   });
 
   it("trusts a domain the user typed", () => expect(pickOfficialDomain([], "zoom", "zoom.us")).toBe("zoom.us"));
+
+  it("finds a product that lives under its parent brand's domain", () => {
+    const hits = [
+      { title: "Sign in with ChatGPT | OpenAI Platform", url: "https://platform.openai.com/docs/guides/sign-in", snippet: "" },
+      { title: "ChatGPT apps developer guide", url: "https://developers.openai.com/apps-sdk", snippet: "" },
+    ];
+    expect(pickOfficialDomain(hits, "chatgpt", undefined, "ChatGPT")).toBe("openai.com");
+  });
+
+  it("counts an official docs page whose snippet names the app", () => {
+    const hits = [{ title: "Authentication – Plugins | OpenAI Developers", url: "https://developers.openai.com/plugins/build/auth", snippet: "ChatGPT can register dynamically…" }];
+    expect(pickOfficialDomain(hits, "chatgpt", undefined, "chatgpt")).toBe("openai.com");
+  });
+
+  it("does not crown a single third-party tutorial", () => {
+    const hits = [{ title: "ChatGPT API tutorial", url: "https://randomblog.example/chatgpt-api", snippet: "" }];
+    expect(pickOfficialDomain(hits, "chatgpt", undefined, "ChatGPT")).toBeNull();
+  });
 });
 
 describe("probe analysis", () => {

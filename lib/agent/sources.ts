@@ -63,7 +63,7 @@ export type SearchHit = { title: string; url: string; snippet: string };
  * Phase 1: pick the provider's official developer domain from search results.
  * Returns null when nothing is credible, so the run can stop early instead of guessing.
  */
-export function pickOfficialDomain(hits: SearchHit[], slug: string, userDomain?: string): string | null {
+export function pickOfficialDomain(hits: SearchHit[], slug: string, userDomain?: string, appName?: string): string | null {
   if (userDomain) return registrableDomain(userDomain);
   const scores = new Map<string, number>();
   const core = slug.split("-")[0] ?? slug;
@@ -79,6 +79,11 @@ export function pickOfficialDomain(hits: SearchHit[], slug: string, userDomain?:
     else if (core.length >= 4 && (label.includes(core) || core.includes(label))) s += 2;
     if (DOCS_HOST_PREFIX.test(host)) s += 2;
     if (/oauth|auth|apps?\b|developer|api/.test(path)) s += 1;
+    // Products under a parent brand (ChatGPT on openai.com, Instagram on facebook.com):
+    // an official-looking docs page whose title names the app counts.
+    const brand = (appName ?? slug).toLowerCase();
+    if (brand.length >= 3 && DOCS_HOST_PREFIX.test(host) && `${h.title} ${h.snippet}`.toLowerCase().includes(brand)) s += 3;
+    else if (brand.length >= 3 && h.title.toLowerCase().includes(brand) && /oauth|developer|api|docs/.test(path + h.title.toLowerCase())) s += 2;
     scores.set(reg, (scores.get(reg) ?? 0) + s);
   }
   let best: [string, number] | null = null;

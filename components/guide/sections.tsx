@@ -38,7 +38,7 @@ export function Inner({ children, className, id }: { children: React.ReactNode; 
   );
 }
 
-export function Section({ id, title, children, className }: { id: string; title: string; children: React.ReactNode; className?: string }) {
+export function Section({ id, title, description, children, className }: { id: string; title: string; description?: string; children: React.ReactNode; className?: string }) {
   return (
     <section id={id} aria-labelledby={`${id}-title`} className={cn("scroll-mt-24", className)}>
       <h2 id={`${id}-title`} className="group flex items-center gap-2 text-xl font-semibold tracking-[-0.02em]">
@@ -47,7 +47,8 @@ export function Section({ id, title, children, className }: { id: string; title:
           <Hash size={16} />
         </a>
       </h2>
-            <div className="mt-4">{children}</div>
+      {description && <p className="mt-1 text-[15px] leading-relaxed text-muted-foreground">{description}</p>}
+      <div className="mt-4">{children}</div>
     </section>
   );
 }

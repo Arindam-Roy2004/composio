@@ -306,9 +306,7 @@ function RunPanel({ state, onRetry, onDismiss }: { state: GenerateState; onRetry
       {state.status === "done" && state.result?.cached ? (
         <div className="px-4 py-4 text-sm text-muted-foreground">This app is already in the library or was generated earlier, so no new research was needed.</div>
       ) : (
-        <div className="px-4 pt-4 pb-1">
-          <AgentTimeline state={state} />
-        </div>
+        <AgentTimeline state={state} />
       )}
       {state.status === "done" && (
         <div className="h-0.5 bg-muted">

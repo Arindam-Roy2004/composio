@@ -39,8 +39,8 @@ test("live run renders streamed agent events (mocked stream)", async ({ page }) 
   await page.goto("/");
   await page.getByLabel("App name or website").fill("Acme");
   await page.getByRole("button", { name: "Generate guide" }).click();
-  const timeline = page.getByRole("list", { name: "Agent progress" });
-  await expect(timeline).toContainText("Research");
+  await expect(page.getByRole("list", { name: "Agent stages" })).toContainText("Research");
+  const timeline = page.getByRole("list", { name: "Agent activity" });
   await expect(timeline).toContainText("OAuth apps"); // source chip for the page read
   await expect(timeline).toContainText("Apps are created in the developer console");
 });

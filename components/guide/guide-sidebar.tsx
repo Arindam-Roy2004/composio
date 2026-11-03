@@ -8,7 +8,7 @@ import { DIFFICULTY_META } from "@/lib/format";
 import type { GuideSummary } from "@/lib/schema/guide.schema";
 import { cn } from "@/lib/utils";
 
-const DIFF_TEXT = { easy: "text-diff-easy", moderate: "text-diff-moderate", hard: "text-diff-hard", gated: "text-diff-gated" } as const;
+const DIFF_TEXT = { easy: "text-diff-easy", moderate: "text-diff-moderate", hard: "text-diff-hard", gated: "text-diff-gated", unknown: "text-muted-foreground" } as const;
 
 function openPalette() {
   window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
