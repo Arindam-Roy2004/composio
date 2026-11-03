@@ -175,7 +175,7 @@
     {
       "id": "rate-limits",
       "title": "Unlisted commercial apps: 1 request/minute on history",
-      "body": "Since 29 May 2025, new commercially distributed apps outside the Marketplace get Tier 1 limits on conversations.history and conversations.replies: 1 request per minute, max 15 objects. Marketplace and internal apps are not affected.",
+      "body": "Since 29 May 2025, new commercially distributed apps outside the Marketplace, and new installations of existing ones, get Tier 1 limits on conversations.history and conversations.replies: 1 request per minute, max 15 objects. Marketplace apps, internal apps and existing installations are not affected.",
       "evidence": "documented",
       "sourceIds": [
         "s3"

@@ -47,6 +47,37 @@ Other issues found during review:
 - **LinkedIn Page requirement.** Believed to be required, but not stated in the docs we read, so it's kept as `uncertain` with a TODO(human) instead of `documented`.
 - **Display bug.** Durations rendered as "30–2 h" and "<1–6 wk". Fixed in `lib/format.ts`, with tests.
 
+## Spot-check against the live docs (2026-11-04)
+
+After the library was written, I re-fetched the provider pages and checked a sample of the specific, numeric claims against what the pages say today. This was a docs re-check, **not** a hands-on setup: nothing here is marked `tested`.
+
+| Guide | Claim | Result |
+|---|---|---|
+| GitHub | Up to 10 callback URLs | Confirmed ("up to 10 callback URLs") |
+| GitHub | 100 OAuth apps per user or org | Confirmed |
+| GitHub | PKCE supports S256 only | Confirmed (`plain` is not supported) |
+| GitHub | Expiring tokens: access 8 h, refresh 6 months | Confirmed. The docs say "six months **without use**", which is slightly more precise than the guide |
+| GitHub | 10 tokens per user, app and scope | Confirmed |
+| GitHub | No review step for OAuth apps | Consistent: the page describes none. This is an absence, so it is not proof |
+| GitHub | Authorization code lifetime | **Gap:** docs say 10 minutes; the guide doesn't mention it |
+| Slack | 1 request/min and max 15 objects on `conversations.history` and `.replies` for unlisted commercial apps | Confirmed |
+| Slack | Which apps are hit | **Corrected.** The guide said "new apps". The changelog says new apps **and new installations of existing apps**, and that existing installations are not affected. Fixed in `slack.json` |
+| Gmail | Unverified apps with sensitive or restricted scopes capped at 100 new users | Confirmed |
+| Gmail | The cap is lifetime and can't be reset | Confirmed in the FAQ ("entire lifetime of the project... cannot be reset or changed"). The Unverified Apps page alone only says "in total", so this relies on the FAQ |
+| Gmail | Testing status: refresh tokens expire after 7 days, except for name, email and profile only | Confirmed on the OAuth overview page. The other cited page (Unverified apps) does **not** mention it, so only one of the two citations backs this claim |
+| Gmail | Verification estimates | Confirmed as estimates: brand 2-3 business days, sensitive 10 business days, restricted 6 weeks. Google says they are not guaranteed |
+| LinkedIn | Only `profile`, `email`, `w_member_social` are self-serve | Confirmed |
+| LinkedIn | Marketing, Sales Navigator and Talent need approval; Compliance is closed | Confirmed |
+| LinkedIn | Access tokens last 60 days | Confirmed ("all access tokens are issued with a 60-day lifespan") |
+| LinkedIn | Authorization code lasts 30 minutes | Confirmed |
+| LinkedIn | Programmatic refresh only for some partners | Confirmed |
+| LinkedIn | Members accept all scopes or none | Confirmed |
+| LinkedIn | A LinkedIn Page is required to create an app | **Still unverifiable.** Neither page says so. It stays `uncertain` |
+
+**Totals:** 19 claims checked. 16 confirmed as written, 1 corrected (Slack), 1 gap found (GitHub code lifetime), 1 unverifiable (LinkedIn Page).
+
+**What I learned:** the numbers held up well. The errors were in *scope and wording* (who a limit applies to, which page backs which claim), not in the numbers. I also noticed LinkedIn's own flow page shows an example with the deprecated `liteprofile` scope next to a table that lists `profile` as the open permission, so the docs disagree with themselves. Providers' docs are not always consistent, which is why the guides label evidence and don't just assert.
+
 ## Per-guide checks
 
 ### GitHub (`data/guides/github.json`)
@@ -139,21 +170,17 @@ Other issues found during review:
   - The active setup time.
 - TODO(human): create an app. Record whether a Page is required and the minutes taken. If you apply for any partner product, record the date and the outcome.
 
-## Agent vs library comparison
+## Live agent runs
 
-TODO(human), once the keys are set:
+Library slugs always return the reviewed library guide, so the agent can't be run against those apps and compared directly. Instead I ran it on apps outside the library:
 
-1. Generate each app under a slightly different query, for example `curl -N -X POST localhost:3000/api/generate -H 'content-type: application/json' -d '{"query":"notion.so"}'`. Library slugs always return the library guide, so a different query is needed to get a fresh run.
-2. For each run, record:
-   - claims the agent got right
-   - claims it got wrong
-   - claims it marked `uncertain` that the docs actually answer
-   - downgrades made by the verifier
+| App | Date | Time | Notes |
+|---|---|---|---|
+| Zoom | 2026-11-03 | 62 s | 14 findings, console probed, 25 of 28 claims documented |
+| Calendly | 2026-11-04 | about 80 s | 3 searches, 5 page reads, 1 console probe; 26 claims (24 documented, 2 uncertain); 0 verifier downgrades |
 
-| Guide | Date | Agent claims | Matched library | Wrong | Over-cautious | Verifier downgrades |
-|---|---|---:|---:|---:|---:|---:|
-| GitHub | TODO(human) | | | | | |
-| Notion | TODO(human) | | | | | |
-| Slack | TODO(human) | | | | | |
-| Gmail | TODO(human) | | | | | |
-| LinkedIn | TODO(human) | | | | | |
+The verifier found nothing to downgrade on the Calendly run. That means every claim had a citation, not that every claim is true. I have not checked the Calendly or Zoom claims against the docs by hand.
+
+TODO(human), still open:
+1. Do one real setup, for example a GitHub OAuth App, and record the date, the minutes taken and any form fields that differ from the guide. Then mark the confirmed claims `tested`.
+2. Hand-check a sample of an agent-generated guide (Calendly) the way I checked the library above.
