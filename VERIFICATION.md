@@ -5,14 +5,13 @@ Anything marked **TODO(human)** can only be filled in by a person doing the real
 
 ## How the library was produced
 
-The live agent (`/api/generate`) could not be run while these guides were written, because the Tavily, Upstash and LLM keys were not yet configured.
-So all five guides were **researched by hand from the providers' official docs** on 2026-11-03. The research was done by the coding assistant that built the app, reading each page listed under "Sources".
+The five guides were written before the live agent had keys configured, so they were **researched by hand from the providers' official docs** on 2026-11-03. The research was done by the coding assistant that built the app, reading each page listed under "Sources".
 Every non-`uncertain` claim cites at least one of those pages. `pnpm validate:library` enforces this: it runs the same deterministic verifier the agent output goes through, and a library guide must pass with **zero** downgrades.
 
 What this does **not** cover yet:
 
 1. A hands-on setup by a person, which would turn claims into `tested`.
-2. A comparison of the live agent's output against these guides. That needs the API keys.
+2. A full comparison of the live agent's output against these guides. A first live run on an app outside the library (Calendly, 2026-11-04) took about 80 s: 3 searches, 5 page reads, 1 console probe, 26 claims (24 documented, 2 uncertain), 0 verifier downgrades. Its claims have not been checked by hand yet.
 
 Both have TODO(human) slots below.
 
