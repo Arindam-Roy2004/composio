@@ -258,7 +258,7 @@
     ]
   },
   "unknowns": [
-    "Active setup time (10–30 min) is our estimate, not documented. Not yet checked hands-on.",
+    "Active setup time (10–30 min) is our estimate, not documented. TODO(human): time a real setup.",
     "Whether creating a public connection requires a workspace owner role is not stated in the docs we read.",
     "Access token lifetime is not stated on the authorization page we read."
   ],

@@ -243,7 +243,7 @@
     ]
   },
   "unknowns": [
-    "Active setup time (20–60 min) is our estimate. Not yet checked hands-on.",
+    "Active setup time (20–60 min) is our estimate. TODO(human): time a real setup.",
     "Slack does not publish a Marketplace review timeline in the pages we read.",
     "Whether localhost redirect URLs are allowed isn't stated; HTTPS is required."
   ],
