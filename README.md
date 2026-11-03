@@ -1,5 +1,7 @@
 # OAuth Navigator
 
+**Live:** https://composio-five-wheat.vercel.app · **Repo:** https://github.com/Arindam-Roy2004/composio
+
 Look up an app, get a guide for creating its OAuth app and getting it approved, and know what to do next.
 
 A developer building an AI agent that lets users connect an app often has to register an OAuth app with the provider first, and sometimes wait for approval. It's hard to tell up front whether that is an hour of clicking or weeks of review. OAuth Navigator answers that, per app:
@@ -67,7 +69,8 @@ Deploy to Vercel and set the variables above. A live run takes roughly 60–90 s
 
 ## Limitations
 
-- **Almost nothing is hands-on tested.** Library guides were researched from official docs and cite them; no claim is marked `tested` yet. `VERIFICATION.md` lists what was checked and what remains open.
+- **Nothing is hands-on tested yet.** I re-checked 19 claims against the live provider docs (16 confirmed, 1 corrected, 1 gap, 1 unverifiable), but I haven't completed a real provider setup myself.
+- **Library guides** were researched from official docs only. Library guides were researched from official docs and cite them; no claim is marked `tested` yet. `VERIFICATION.md` lists what was checked and what remains open.
 - **Setup times are mostly uncertain.** Providers don't publish them.
 - **Approval timelines** (Slack Marketplace, LinkedIn partner products, Google security assessment) are estimates or unknown.
 - **Generated guides are only as good as findable public docs** and can be wrong; the verifier checks citations, not truth.
