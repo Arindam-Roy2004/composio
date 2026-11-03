@@ -1,6 +1,6 @@
 "use client";
 
-import { MagnifyingGlass, Plus, SealCheck, Sparkle } from "@phosphor-icons/react";
+import { MagnifyingGlass, Plus, SealCheck, Sparkle, SquaresFour } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppLogo } from "@/components/site/app-logo";
@@ -32,10 +32,13 @@ export function GuideSidebar({ library, generated }: { library: GuideSummary[]; 
       </div>
       <nav aria-label="Guides" className="min-h-0 flex-1 overflow-y-auto px-2.5 pb-3 [scrollbar-width:thin]">
         <Group title="Library" icon={<SealCheck size={13} weight="fill" className="text-ev-tested" />} items={library} pathname={pathname} />
-        {generated.length > 0 && <Group title="Generated" icon={<Sparkle size={13} weight="duotone" />} items={generated.slice(0, 12)} pathname={pathname} />}
+        {generated.length > 0 && <Group title="Recently generated" icon={<Sparkle size={13} weight="duotone" />} items={generated.slice(0, 6)} pathname={pathname} />}
+        <Link href="/guides" className="mt-1 flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-background hover:text-foreground">
+          <SquaresFour size={14} /> View all guides
+        </Link>
         <Link
           href="/#generate"
-          className="mt-3 flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+          className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
         >
           <Plus size={14} /> Research another app
         </Link>

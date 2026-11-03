@@ -13,7 +13,7 @@ export function SiteFooter() {
         <nav aria-label="Product" className="text-sm">
           <p className="font-medium">Product</p>
           <ul className="mt-3 space-y-2 text-muted-foreground">
-            <li><Link href="/#library" className="hover:text-foreground">Library</Link></li>
+            <li><Link href="/guides" className="hover:text-foreground">All guides</Link></li>
             <li><Link href="/#generate" className="hover:text-foreground">Research an app</Link></li>
             <li><Link href="/#faq" className="hover:text-foreground">FAQ</Link></li>
           </ul>

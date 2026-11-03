@@ -36,7 +36,10 @@ function list(items: string[]): string {
 const SEV = { high: 3, medium: 2, low: 1 } as const;
 
 /** "Your workspace" → "your workspace", but leave "API calls" and "OAuth" alone. */
-const lowerFirst = (t: string) => (/^[A-Z][a-z]/.test(t) ? t.charAt(0).toLowerCase() + t.slice(1) : t);
+const lowerFirst = (t: string) => {
+  const first = t.split(/\s/)[0] ?? "";
+  return first === "A" || /^[A-Z][a-z]+$/.test(first) ? t.charAt(0).toLowerCase() + t.slice(1) : t;
+};
 
 /** Plain-English summary built from the guide's own data, so it can never disagree with the details. */
 export function InShort({ guide }: { guide: Guide }) {

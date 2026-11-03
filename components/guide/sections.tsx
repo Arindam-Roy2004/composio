@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowSquareOut, ArrowUpRight, Check, Copy, Hash, Robot, User, Warning } from "@phosphor-icons/react";
+import { ArrowSquareOut, ArrowUpRight, Check, Copy, Hash, Question, Robot, User, Warning } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BouncyAccordion } from "@/components/motion/bouncy-accordion";
@@ -188,39 +188,47 @@ const TIER = {
   unknown: "bg-muted text-subtle-foreground",
 } as const;
 
+const REVIEW = {
+  yes: { label: "Needs review", cls: "text-diff-hard", icon: Warning },
+  no: { label: "No review", cls: "text-ev-tested", icon: Check },
+  unknown: { label: "Unknown", cls: "text-subtle-foreground", icon: Question },
+} as const;
+
+/** Aligned rows instead of a table: scope + tier, note underneath, review status, evidence in a fixed column. */
 export function ScopesTable({ guide }: { guide: Guide }) {
-  if (!guide.scopes.length) return <Tray><Inner><Empty>No scope information found.</Empty></Inner></Tray>;
   return (
     <Tray>
-      <Inner className="relative overflow-x-auto">
-        <table className="w-full min-w-[600px] text-sm">
-          <thead>
-            <tr className="border-b text-left text-xs text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Scope</th>
-              <th className="px-2 py-3 font-medium">Tier</th>
-              <th className="px-2 py-3 font-medium">Review</th>
-              <th className="px-2 py-3 font-medium">Note</th>
-              <th className="px-4 py-3 text-right font-medium">Evidence</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {guide.scopes.map((s) => (
-              <tr key={s.name} className="align-top transition-colors hover:bg-muted/30">
-                <td className="px-4 py-3">
-                  <code className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[12px] break-all">{s.name}</code>
-                </td>
-                <td className="px-2 py-3">
-                  <span className={cn("inline-flex h-[22px] items-center rounded-md px-1.5 text-[11px] font-medium capitalize", TIER[s.tier])}>{s.tier}</span>
-                </td>
-                <td className="px-2 py-3 text-[13px]">{s.triggersReview === null ? <span className="text-subtle-foreground">Unknown</span> : s.triggersReview ? "Yes" : "No"}</td>
-                <td className="px-2 py-3 text-[13px] text-muted-foreground">{s.note}</td>
-                <td className="px-4 py-3 text-right">
-                  <EvidenceBadge evidence={s.evidence} sourceIds={s.sourceIds} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <Inner>
+        <div className="hidden grid-cols-[minmax(0,1fr)_120px_132px] gap-4 border-b px-4 py-2.5 text-xs text-muted-foreground md:grid">
+          <span>Permission</span>
+          <span>Review</span>
+          <span className="text-right">How we know</span>
+        </div>
+        <ul className="divide-y">
+          {guide.scopes.map((sc) => {
+            const r = REVIEW[sc.triggersReview === null ? "unknown" : sc.triggersReview ? "yes" : "no"];
+            return (
+              <li key={sc.name} className="grid grid-cols-1 gap-2 px-4 py-3.5 transition-colors hover:bg-muted/30 md:grid-cols-[minmax(0,1fr)_120px_132px] md:items-start md:gap-4">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <code className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[12.5px] break-all">{sc.name}</code>
+                    <span className={cn("inline-flex h-5 items-center rounded-md px-1.5 text-[11px] font-medium capitalize", TIER[sc.tier])}>{sc.tier}</span>
+                  </div>
+                  {sc.note && <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{sc.note}</p>}
+                </div>
+                <div className="flex items-center justify-between gap-3 md:contents">
+                  <span className={cn("flex items-center gap-1.5 text-[13px] md:pt-1", r.cls)}>
+                    <r.icon size={14} weight="bold" />
+                    {r.label}
+                  </span>
+                  <span className="flex md:justify-end md:pt-0.5">
+                    <EvidenceBadge evidence={sc.evidence} sourceIds={sc.sourceIds} />
+                  </span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </Inner>
     </Tray>
   );

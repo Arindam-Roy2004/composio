@@ -1,3 +1,5 @@
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
 import { Suspense } from "react";
 import { GenerateBox } from "@/components/generate/generate-box";
 import { Bento } from "@/components/landing/bento";
@@ -72,8 +74,13 @@ export default async function Home() {
               Five apps, five setup stories, <Mark>ready to read</Mark>
             </Heading>
             <Reveal inView className="mt-12">
-              <GuideStrip guides={guides} />
+              <GuideStrip guides={guides.filter((g) => g.generatedBy === "library")} />
             </Reveal>
+            <div className="mt-8 text-center">
+              <Link href="/guides" className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-muted-foreground ring-1 ring-border transition-colors hover:bg-muted hover:text-foreground">
+                Browse all guides, including AI-generated ones <ArrowRight size={14} />
+              </Link>
+            </div>
           </section>
         )}
 
