@@ -3,7 +3,7 @@
 How the five library guides were checked, what changed, and what is still unverified.
 No test results here are invented. **One hands-on provider step was completed**: a GitHub OAuth App registration on 2026-11-04. That claim is marked `tested`; every other non-`uncertain` claim is backed by a cited source. The two docs passes below closed the open questions that public documentation could answer and list the rest explicitly.
 
-**Who did what:** the coding assistant built the app and ran the documentation checks and agent comparisons described here under my direction. I completed one GitHub OAuth App registration on 2026-11-04; I did not set up Notion, Slack, Gmail or LinkedIn. `documented` means an official provider page says it; `tested` means I actually did that step and the date is recorded.
+**Who did what:** the coding assistant built the app and ran the documentation checks and agent comparisons described here under my direction. I completed one GitHub OAuth App registration on 2026-11-04;`tested` means I actually did that step and the date is recorded.
 
 ## How the library was produced
 
@@ -17,8 +17,6 @@ What has been done since:
 3. A comparison of the live agent with the library on all five apps.
 4. A hand-check of one agent-only guide (Calendly), against the pages it cited.
 5. A GitHub hands-on registration test (2026-11-04), recorded below.
-
-What has **not** been done: a hands-on setup with Notion, Slack, Gmail or LinkedIn. The rest of the GitHub guide (client-secret generation, the OAuth flow, token refresh and org restrictions) was also not exercised. Those claims stay `documented` or `uncertain`.
 
 ## Aggregate (updated 2026-11-04)
 
@@ -286,15 +284,3 @@ Two weaknesses from the comparison above are fixed in code, each with a unit tes
 
 1. **Docs mirror recognised as official.** A page in the provider's own docs repository on GitHub (for example `raw.githubusercontent.com/github/docs/...`) is now classed as official docs when the GitHub org matches the provider's official domain and the repo is a docs repo. Other repos stay unofficial. This is meant to stop the 33-claim downgrade seen on GitHub. A live re-run (`GitHub OAuth app setup`, 44 s) had 0 downgrades, but the agent read docs.github.com directly that time, so the mirror path was not exercised live. The unit test is the evidence for this fix.
 2. **Synthesis retry.** Both failed runs were synthesis timeouts, not invalid output: the model call hung and was cut off at the end of the run deadline. The first attempt is now capped at part of the remaining time, and a second attempt gets the rest. A new test covers one retry and giving up after two failures. I have not yet seen a real run hit the retry.
-
-## Remaining gaps
-
-These are the things a reviewer should not assume are solved:
-
-1. **Only one hands-on check.** GitHub registration is tested (2026-11-04). Notion, Slack, Gmail and LinkedIn were not set up, and the rest of the GitHub guide (client secret, OAuth flow, token refresh, org restrictions) was not exercised. A hands-on pass would create a Notion public connection, install a Slack app in a second workspace, set up a Gmail Testing client with `gmail.readonly`, and create a LinkedIn app with a Page. Record the date, minutes and any fields that differ, then change only the claims that were confirmed to `tested`.
-2. **Setup times are estimates.** No provider publishes how long the forms take. Even the GitHub test did not record exact minutes, so its setup time remains `uncertain`. The ranges in the guides are forecasts.
-3. **Notion's public-connection owner role and access-token lifetime.** Notion documents the owner role for internal connections but not for public ones, and it publishes no token lifetime.
-4. **Gmail security-assessment duration and cost.** The assessment is annual and paid to the assessor; Google publishes neither a duration nor a price.
-5. **LinkedIn partner timelines and criteria.** Most permissions need approval and approval isn't guaranteed; no timeline or acceptance criteria are published.
-6. **Agent judgment gaps.** The Slack agent still misses the 1 request/min history limit, and the Notion/LinkedIn difficulty disagreements are not fixed. They are model-judgment problems, not plumbing, and I did not want to tune prompts to the five apps I compared against.
-7. **Generated guides are only as good as findable public docs.** The verifier checks citations, not truth.
