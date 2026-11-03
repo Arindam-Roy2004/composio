@@ -127,6 +127,19 @@ describe("runAgent", () => {
     expect(r.guide.unknowns.length).toBeGreaterThan(0);
   });
 
+  it("retries synthesis once after a timeout", async () => {
+    const synthesise = vi.fn().mockRejectedValueOnce(new Error("The operation was aborted due to timeout")).mockResolvedValueOnce(draftFrom());
+    const r = await runAgent({ query, emit: () => {}, deps: fakeDeps(), brain: { ...scriptedBrain([{ tool: "readPage", input: { url: docs } }]), synthesise } });
+    expect(synthesise).toHaveBeenCalledTimes(2);
+    expect(GuideSchema.safeParse(r.guide).success).toBe(true);
+  });
+
+  it("gives up with SynthesisError after two failed attempts", async () => {
+    const synthesise = vi.fn().mockRejectedValue(new Error("timeout"));
+    await expect(runAgent({ query, emit: () => {}, deps: fakeDeps(), brain: { ...scriptedBrain([]), synthesise } })).rejects.toThrow("could not produce a valid guide");
+    expect(synthesise).toHaveBeenCalledTimes(2);
+  });
+
   it("survives a search outage during identify", async () => {
     const deps = fakeDeps({ search: async () => { throw new Error("down"); } });
     const r = await runAgent({ query: { display: "zoom.us", slug: "zoom", kind: "domain", domain: "zoom.us" }, emit: () => {}, deps, brain: scriptedBrain([]) });

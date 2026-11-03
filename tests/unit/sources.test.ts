@@ -19,6 +19,14 @@ describe("source classification", () => {
     ["https://randomblog.example/linkedin-oauth", "other"],
   ])("%s → %s", (url, kind) => expect(classifySource(url, ctx)).toBe(kind));
 
+  it("treats the provider's own docs repo on GitHub as official, but not other repos", () => {
+    const gh = { officialDomains: new Set(["github.com"]), slug: "github" };
+    expect(classifySource("https://raw.githubusercontent.com/github/docs/main/content/apps/oauth-apps/x.md", gh)).toBe("official_docs");
+    expect(classifySource("https://raw.githubusercontent.com/someone/docs/main/x.md", gh)).toBe("other");
+    expect(classifySource("https://raw.githubusercontent.com/github/random-repo/main/x.md", gh)).toBe("other");
+    expect(classifySource("https://gist.github.com/github/abc", gh)).toBe("community");
+  });
+
   it("probed pages are console", () => expect(classifySource("https://x.test", { ...ctx, probed: true })).toBe("console"));
 });
 

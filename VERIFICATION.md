@@ -200,9 +200,38 @@ Earlier runs on apps with no library guide: Zoom (62 s, 25 of 28 claims document
 
 **A verifier weakness (GitHub):** the agent read GitHub's docs from `raw.githubusercontent.com` (the markdown source in GitHub's own docs repo). The verifier does not recognise that host as official, so it downgraded 33 claims to "community". The claims themselves were drawn from real GitHub documentation, so this was over-cautious. The failure is safe (it under-claims) but it makes the guide look weaker than it is.
 
+## Hand-check of an agent-only guide: Calendly (2026-11-04)
+
+Calendly has no library guide, so the only way to judge the agent's guide is to check it against the pages it cited. I fetched those three pages again and checked 17 claims.
+
+**Confirmed (15):**
+- Sandbox allows `https` and `http` on localhost; Production allows `https` only; exactly one redirect URI.
+- Client ID, client secret and webhook signing key cannot be viewed again after creation.
+- PKCE with `S256` is mandatory, and a request without a code challenge fails.
+- If the Developer menu item is missing, use developer.calendly.com/login.
+- No approval or review step is stated for Production apps, which matches the agent's `uncertain` rating on approval time.
+- A privacy policy is required, and developers must not conceal their identity or their app's identity when requesting authorization.
+- A `:write` scope implicitly includes the matching `:read` scope.
+- Users can decline scopes during install; a 403 can mean a missing scope; existing installs may need reauthorization.
+- The scope descriptions for scheduled events, webhooks, activity log and meeting recaps.
+
+**Imprecise or unconfirmed (2):**
+- The guide says `data_compliance:write` "implicitly includes the corresponding read scope". The scopes page lists no `data_compliance:read`, so that statement is wrong or at least misleading.
+- The guide gives `developer.calendly.com/console/apps` as the place to manage apps. The page only names `developer.calendly.com/login`, so the `/console/apps` path is not confirmed.
+
+**Omission (not an error):** the page documents 23 scopes and the guide lists 8. It leaves out `users:read`, `event_types:read`, `availability:read` and others that an integration is most likely to need first. A reader would have to open the docs for the rest.
+
+**What this says about the agent:** on this guide the facts it did state were right (15 of 17), the two slips were over-reach in wording, and the main weakness was coverage. It also correctly refused to claim anything about approval time. I only checked one agent-only guide, so this is a sample, not a measured accuracy.
+
+## Fixes made after the comparison
+
+Two weaknesses from the comparison above are fixed in code, each with a unit test (172 tests pass):
+
+1. **Docs mirror recognised as official.** A page in the provider's own docs repository on GitHub (for example `raw.githubusercontent.com/github/docs/...`) is now classed as official docs when the GitHub org matches the provider's official domain and the repo is a docs repo. Other repos stay unofficial. This is meant to stop the 33-claim downgrade seen on GitHub. A live re-run (`GitHub OAuth app setup`, 44 s) had 0 downgrades, but the agent read docs.github.com directly that time, so the mirror path was not exercised live. The unit test is the evidence for this fix.
+2. **Synthesis retry.** Both failed runs were synthesis timeouts, not invalid output: the model call hung and was cut off at the end of the run deadline. The first attempt is now capped at part of the remaining time, and a second attempt gets the rest. A new test covers one retry and giving up after two failures. I have not yet seen a real run hit the retry.
+
 ### Still open
 
 TODO(human):
-1. Do one real setup, for example a GitHub OAuth App, and record the date, the minutes taken and any form fields that differ from the guide. Then mark the confirmed claims `tested`.
-2. Hand-check a sample of the claims in an agent-only guide (Calendly or Zoom).
-3. The two failed runs and the GitHub downgrade pattern point to a follow-up: recognising official docs mirrors and giving the agent a retry.
+1. Do one real setup, for example a GitHub OAuth App (about 10 minutes at github.com/settings/developers), and record the date, the minutes taken and any form fields that differ from the guide. Then mark the confirmed claims `tested`. GitHub has no API for creating an OAuth app, so this needs a logged-in browser and can't be automated.
+2. The Slack agent gap (it never mentions the 1 request/min history limit) and the Notion/LinkedIn difficulty disagreements are not fixed. They are model-judgment problems, not plumbing, and I did not want to tune prompts to the five apps I compared against.

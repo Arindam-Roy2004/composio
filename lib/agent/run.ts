@@ -140,24 +140,28 @@ export async function runAgent({ query, emit, deps, brain }: RunOpts): Promise<R
   // Phase 4: synthesise from notes + sources only.
   stage("synthesise", "start");
   const sources = state.uniqueSources();
-  const remaining = Math.max(5_000, BUDGET.runDeadlineMs - (now() - startedAt) - 3_000);
+  const left = () => BUDGET.runDeadlineMs - (now() - startedAt) - 3_000;
+  const prompt = synthesisPrompt({
+    appName: query.display,
+    officialDomain,
+    sources,
+    notes: state.notes,
+    probes: state.probes,
+    today: new Date(now()).toISOString().slice(0, 10),
+  });
+  // Synthesis normally takes ~10 s but a call can hang. The first attempt gets only part of the
+  // remaining time so a hung call can be cut off and retried once inside the same deadline.
   let draft: GuideDraft;
-  try {
-    draft = await brain.synthesise({
-      system: SYNTHESIS_SYSTEM,
-      prompt: synthesisPrompt({
-        appName: query.display,
-        officialDomain,
-        sources,
-        notes: state.notes,
-        probes: state.probes,
-        today: new Date(now()).toISOString().slice(0, 10),
-      }),
-      signal: AbortSignal.timeout(remaining),
-    });
-  } catch (err) {
-    log.error("synthesis failed", { error: err instanceof Error ? err.message : String(err) });
-    throw new SynthesisError();
+  for (let attempt = 1; ; attempt++) {
+    const remaining = Math.max(5_000, left());
+    const budget = attempt === 1 ? Math.min(remaining, Math.max(20_000, Math.floor(remaining * 0.55))) : remaining;
+    try {
+      draft = await brain.synthesise({ system: SYNTHESIS_SYSTEM, prompt, signal: AbortSignal.timeout(budget) });
+      break;
+    } catch (err) {
+      log.error("synthesis failed", { attempt, error: err instanceof Error ? err.message : String(err) });
+      if (attempt >= 2 || deadline.aborted || left() < 10_000) throw new SynthesisError();
+    }
   }
   stage("synthesise", "done");
 

@@ -27,6 +27,18 @@ export function hostOf(url: string): string {
   }
 }
 
+/**
+ * A provider's own docs repository, e.g. raw.githubusercontent.com/github/docs/... for github.com.
+ * Deterministic: the GitHub org must equal the provider's official domain label and the repo must
+ * look like a docs repo. Org names are unique on GitHub, so only the provider can publish there.
+ */
+function isOfficialDocsRepo(host: string, path: string, officialDomains: Set<string>): boolean {
+  if (host !== "raw.githubusercontent.com" && host !== "github.com") return false;
+  const [org, repo] = path.split("/").filter(Boolean);
+  if (!org || !repo || !/^(docs?|documentation|developer-docs|api-docs|developers?)$/.test(repo)) return false;
+  return [...officialDomains].some((d) => d.split(".")[0] === org);
+}
+
 function isCommunity(host: string, path: string): boolean {
   if (COMMUNITY_HOSTS.some((h) => (h.endsWith(".") ? host.startsWith(h) : host === h || host.endsWith(`.${h}`)))) return true;
   return /\/(community|forum|forums|discussions|questions)\//.test(path);
@@ -50,6 +62,7 @@ export function classifySource(url: string, ctx: { officialDomains: Set<string>;
 
   const official =
     ctx.officialDomains.has(registrableDomain(host)) ||
+    isOfficialDocsRepo(host, path, ctx.officialDomains) ||
     // Docs hosted on a parent company's docs site, e.g. learn.microsoft.com/linkedin/...
     (DOCS_HOST_PREFIX.test(host) && ctx.slug.length >= 3 && (path.includes(`/${ctx.slug}`) || host.includes(ctx.slug)));
   if (!official) return "other";
