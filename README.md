@@ -28,7 +28,7 @@ A developer building an AI agent that lets users connect an app often has to reg
 4. **Structured synthesis** into a strict `GuideSchema`.
 5. **Deterministic verify:** no LLM. Claims citing no source, or a page the agent took no notes from, are downgraded to `uncertain`. A guide with no sources is forced to *Not rated*.
 
-Evidence labels: **Official docs**, **Seen by agent** (probed page), **Unofficial**, **Unconfirmed**. A `tested` label exists for claims a human confirmed hands-on; currently none are marked.
+Evidence labels: **Official docs**, **Seen by agent** (probed page), **Unofficial**, **Unconfirmed**. A `tested` label exists for claims a human confirmed hands-on; one GitHub registration claim is currently marked tested.
 
 ## Key decisions
 
@@ -69,9 +69,9 @@ Deploy to Vercel and set the variables above. A live run takes roughly 60–90 s
 
 ## Limitations
 
-- **Nothing is hands-on tested yet.** The coding assistant ran two docs passes: 19 claims in the first (16 confirmed, 1 corrected, 1 gap, 1 unverifiable), then a second pass that closed 7 open questions with official sources and left 5 open. It also compared the live agent with the library on all five apps (it agreed on difficulty for 3 of 5, and its research corrected one library claim), but I haven't completed a real provider setup myself. `VERIFICATION.md` records both passes.
-- **Library guides** were researched from official docs and cite them; no claim is marked `tested` yet. `VERIFICATION.md` lists what was checked and what remains open.
-- **Setup times are mostly uncertain.** Providers don't publish them.
+- **One hands-on check, not five.** I created a GitHub OAuth App on 2026-11-04; it was easy, and the client ID appeared immediately with no review. The exact minutes, client-secret generation, OAuth flow and org restrictions were not recorded, so those claims remain documented or uncertain. Notion, Slack, Gmail and LinkedIn were not set up. The coding assistant ran two docs passes: 19 claims in the first (16 confirmed, 1 corrected, 1 gap, 1 unverifiable), then a second pass that closed 7 open questions with official sources and left 5 open. `VERIFICATION.md` records both passes.
+- **Library guides** were researched from official docs and cite them; one GitHub claim is `tested`, the rest are docs-only. `VERIFICATION.md` lists what was checked and what remains open.
+- **Setup times are mostly uncertain.** Providers don't publish them; even the GitHub test did not record exact minutes.
 - **Approval timelines:** Slack publishes its Marketplace review timeline (up to 10 business days preliminary, then up to 10 weeks functional); LinkedIn partner approval and Google security-assessment duration/cost are not published.
 - **Generated guides are only as good as findable public docs** and can be wrong; the verifier checks citations, not truth.
 - **Rate limits:** 20 fresh runs per IP per hour in production (50 in dev). Cached guides don't count.

@@ -7,7 +7,7 @@ export function SiteFooter() {
         <div>
           <p className="text-sm font-semibold tracking-tight">OAuth Navigator</p>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Research aids, not legal advice. Provider policies change, so every guide shows when it was researched and verified.
+            Research aids, not legal advice. Provider policies change, so every guide shows when it was researched and last checked.
           </p>
         </div>
         <nav aria-label="Product" className="text-sm">

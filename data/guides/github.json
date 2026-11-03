@@ -5,6 +5,7 @@
   "website": "https://github.com",
   "category": "Developer tools",
   "generatedAt": "2026-11-03T00:00:00.000Z",
+  "lastVerifiedAt": "2026-11-04T00:00:00.000Z",
   "generatedBy": "library",
   "oauthSupport": "oauth2_pkce",
   "verdict": {
@@ -150,6 +151,13 @@
   ],
   "nuances": [
     {
+      "id": "hands-on-registration",
+      "title": "Hands-on: registration was immediate and unreviewed",
+      "body": "The candidate created an OAuth App on 2026-11-04 and reported it was easy. The client ID was available as soon as the app was registered, with no review or approval step. Exact minutes, button labels, callback count and client-secret generation were not recorded.",
+      "evidence": "tested",
+      "sourceIds": ["s1"]
+    },
+    {
       "id": "redirect-matching",
       "title": "Redirect URI matching is exact unless wildcard matching is enabled",
       "body": "Without wildcard matching the redirect_uri must exactly match a callback URL. With it, host and port must match and the path must be a subdirectory of the callback URL. If redirect_uri is omitted, GitHub uses the first callback URL.",
@@ -238,7 +246,7 @@
     ]
   },
   "unknowns": [
-    "Active setup time (5–15 min) is an estimate based on the five form fields; GitHub publishes no setup time and this was not timed hands-on."
+    "Active setup time (5–15 min) is an estimate. The candidate created an OAuth App on 2026-11-04 and reported it was easy, but did not record the exact minutes."
   ],
   "sources": [
     { "id": "s1", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app", "title": "Creating an OAuth app", "kind": "official_docs", "fetchedAt": "2026-11-03T00:00:00.000Z" },

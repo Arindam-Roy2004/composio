@@ -1,9 +1,9 @@
 # Verification log
 
 How the five library guides were checked, what changed, and what is still unverified.
-No test results here are invented. **No hands-on provider setup was completed**, so no claim is marked `tested`; every non-`uncertain` claim is backed by a cited source. The two docs passes below closed the open questions that public documentation could answer and list the rest explicitly.
+No test results here are invented. **One hands-on provider step was completed**: a GitHub OAuth App registration on 2026-11-04. That claim is marked `tested`; every other non-`uncertain` claim is backed by a cited source. The two docs passes below closed the open questions that public documentation could answer and list the rest explicitly.
 
-**Who did what:** the coding assistant built the app and ran the documentation checks and agent comparisons described here under my direction. I did not personally complete a provider setup. `documented` means an official provider page says it; it does not mean the flow was run.
+**Who did what:** the coding assistant built the app and ran the documentation checks and agent comparisons described here under my direction. I completed one GitHub OAuth App registration on 2026-11-04; I did not set up Notion, Slack, Gmail or LinkedIn. `documented` means an official provider page says it; `tested` means I actually did that step and the date is recorded.
 
 ## How the library was produced
 
@@ -16,21 +16,22 @@ What has been done since:
 2. A second docs pass over every remaining open question (2026-11-04), recorded below.
 3. A comparison of the live agent with the library on all five apps.
 4. A hand-check of one agent-only guide (Calendly), against the pages it cited.
+5. A GitHub hands-on registration test (2026-11-04), recorded below.
 
-What has **not** been done: a hands-on setup with a real provider account. Every claim is backed by official docs, not by completing the setup, so the `Tested` column stays at 0. A hands-on pass is the only thing that can move a claim to `tested`.
+What has **not** been done: a hands-on setup with Notion, Slack, Gmail or LinkedIn. The rest of the GitHub guide (client-secret generation, the OAuth flow, token refresh and org restrictions) was also not exercised. Those claims stay `documented` or `uncertain`.
 
 ## Aggregate (updated 2026-11-04)
 
 | | Claims | Documented | Uncertain | Tested | Sources |
 |---|---:|---:|---:|---:|---:|
-| GitHub | 29 | 28 | 1 | 0 | 5 |
+| GitHub | 30 | 28 | 1 | 1 | 5 |
 | Notion | 20 | 19 | 1 | 0 | 4 |
 | Slack | 21 | 19 | 2 | 0 | 4 |
 | Google (Gmail) | 30 | 29 | 1 | 0 | 7 |
 | LinkedIn | 22 | 21 | 1 | 0 | 3 |
-| **Total** | **122** | **116** | **6** | **0** | **23** |
+| **Total** | **123** | **116** | **6** | **1** | **23** |
 
-The library snapshot on 2026-11-03 was 119 claims, 111 documented, 8 uncertain and 18 sources. The two docs passes added 3 claims and 5 sources and moved 2 uncertain claims to documented. No claim moved to `tested`.
+The library snapshot on 2026-11-03 was 119 claims, 111 documented, 8 uncertain and 18 sources. The two docs passes added 3 claims and 5 sources and moved 2 uncertain claims to documented. The GitHub hands-on test then added 1 tested claim. The current total is 123 claims.
 
 - Every "uncertain" claim is listed in that guide's "What we couldn't confirm" section.
 - Five of the six uncertain claims are hands-on setup times, which no provider documents. The sixth is Slack's `chat:write` review status.
@@ -56,7 +57,7 @@ Other issues found during review:
 
 ## First spot-check against the live docs (2026-11-04)
 
-After the library was written, I re-fetched the provider pages and checked a sample of the specific, numeric claims against what the pages say today. This was a docs re-check, **not** a hands-on setup: nothing here is marked `tested`.
+After the library was written, I re-fetched the provider pages and checked a sample of the specific, numeric claims against what the pages say today. This was a docs re-check, **not** a hands-on setup; the only exception is the GitHub review row, which was later confirmed by the GitHub hands-on test below.
 
 | Guide | Claim | Result |
 |---|---|---|
@@ -65,7 +66,7 @@ After the library was written, I re-fetched the provider pages and checked a sam
 | GitHub | PKCE supports S256 only | Confirmed (`plain` is not supported) |
 | GitHub | Expiring tokens: access 8 h, refresh 6 months | Confirmed. The docs say "six months **without use**", slightly more precise than the guide |
 | GitHub | 10 tokens per user, app and scope | Confirmed |
-| GitHub | No review step for OAuth apps | Consistent: the page describes none. This is an absence, so it is not proof |
+| GitHub | No review step for OAuth apps | Confirmed hands-on on 2026-11-04: registration issued a client ID with no review |
 | GitHub | Authorization code lifetime | **Gap (now filled).** Docs say 10 minutes; the guide did not mention it. Added as a nuance in the second pass |
 | Slack | 1 request/min and max 15 objects on `conversations.history` and `.replies` for unlisted commercial apps | Confirmed |
 | Slack | Which apps are hit | **Corrected.** The guide said "new apps". The changelog says new apps **and new installations of existing apps**, and that existing installations are not affected. Fixed in `slack.json` |
@@ -108,6 +109,26 @@ The first pass left a handful of open questions. I re-fetched the provider's own
 
 **Still open (5):** Notion's owner role for public connections, Notion's access-token lifetime, Gmail's assessment duration/cost, LinkedIn's partner timelines/criteria, and every active setup time.
 
+## GitHub hands-on check (2026-11-04)
+
+The candidate created an OAuth App under their GitHub account and reported it was easy. This is the only hands-on provider check in the project.
+
+**Confirmed by the action:**
+
+- An OAuth App can be registered from GitHub settings.
+- The client ID is issued immediately after registration.
+- There is no review or approval step before credentials are issued.
+
+**Not recorded, so these stay `documented` or `uncertain`:**
+
+- The exact minutes taken.
+- The button label (`New OAuth app` vs `Register a new application`).
+- How many callback URLs were added.
+- Client-secret generation and the token exchange.
+- PKCE, token lifetimes, callback matching and org access restrictions.
+
+The new `hands-on-registration` nuance is `tested`, and `github.json` now has `lastVerifiedAt: 2026-11-04`. The setup time remains `uncertain` because the exact minutes were not recorded. A registration test does not prove the rest of the guide.
+
 ## Per-guide checks
 
 ### GitHub (`data/guides/github.json`)
@@ -126,8 +147,8 @@ The first pass left a handful of open questions. I re-fetched the provider's own
   - Org access restrictions are on by default for new orgs.
   - Authorization codes expire after 10 minutes.
   - A client secret is required for the token exchange and can be regenerated if compromised.
-- **Unverified:** the active setup time, and the exact wording of the client-secret button in the current UI.
-- **Hands-on status:** a real OAuth App was **not** created. A person would register one at `github.com/settings/developers` (about 10 minutes), record the date and any fields that differ, then set `evidence: "tested"` and `lastVerifiedAt` on the claims confirmed.
+- **Unverified:** the active setup time and the exact wording of the client-secret button in the current UI. The hands-on test did not record either.
+- **Hands-on status:** a real OAuth App **was** created on 2026-11-04, and the candidate reported it was easy. The core registration claim (`hands-on-registration`) is `tested`; the client-secret button label, callback count, OAuth flow, token refresh and org restrictions were not recorded and remain `documented` or `uncertain`.
 
 ### Notion (`data/guides/notion.json`)
 - **Sources:**
@@ -270,8 +291,8 @@ Two weaknesses from the comparison above are fixed in code, each with a unit tes
 
 These are the things a reviewer should not assume are solved:
 
-1. **No hands-on provider setup.** Nothing is `tested`. The cheapest first check is a GitHub OAuth App (about 10 minutes at `github.com/settings/developers`), but it needs a logged-in browser; GitHub has no API for creating one. A hands-on pass would also create a Notion public connection, install a Slack app in a second workspace, set up a Gmail Testing client with `gmail.readonly`, and create a LinkedIn app with a Page. Record the date, minutes and any fields that differ, then change only the claims that were confirmed to `tested`.
-2. **Setup times are estimates.** No provider publishes how long the forms take, and none was timed hands-on. The ranges in the guides are forecasts, marked `uncertain`.
+1. **Only one hands-on check.** GitHub registration is tested (2026-11-04). Notion, Slack, Gmail and LinkedIn were not set up, and the rest of the GitHub guide (client secret, OAuth flow, token refresh, org restrictions) was not exercised. A hands-on pass would create a Notion public connection, install a Slack app in a second workspace, set up a Gmail Testing client with `gmail.readonly`, and create a LinkedIn app with a Page. Record the date, minutes and any fields that differ, then change only the claims that were confirmed to `tested`.
+2. **Setup times are estimates.** No provider publishes how long the forms take. Even the GitHub test did not record exact minutes, so its setup time remains `uncertain`. The ranges in the guides are forecasts.
 3. **Notion's public-connection owner role and access-token lifetime.** Notion documents the owner role for internal connections but not for public ones, and it publishes no token lifetime.
 4. **Gmail security-assessment duration and cost.** The assessment is annual and paid to the assessor; Google publishes neither a duration nor a price.
 5. **LinkedIn partner timelines and criteria.** Most permissions need approval and approval isn't guaranteed; no timeline or acceptance criteria are published.

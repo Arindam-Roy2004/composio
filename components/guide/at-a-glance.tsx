@@ -37,7 +37,7 @@ export function AtAGlance({ guide }: { guide: Guide }) {
             <CitationStack limit={4} citations={guide.sources.map((s) => ({ id: s.id, title: s.title, domain: domainOf(s.url), url: s.url }))} />
           )}
           {guide.generatedBy === "library" ? "Researched" : "Generated"} {formatDate(guide.generatedAt)}
-          {guide.lastVerifiedAt && ` · verified ${formatDate(guide.lastVerifiedAt)}`}
+          {guide.lastVerifiedAt && ` · last checked ${formatDate(guide.lastVerifiedAt)}`}
         </span>
       }
       meta={`${guide.sources.length} sources`}
