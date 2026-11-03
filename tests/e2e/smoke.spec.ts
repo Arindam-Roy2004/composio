@@ -47,10 +47,10 @@ test("live run renders streamed agent events (mocked stream)", async ({ page }) 
 
 test("all guides page searches and offers research on no match", async ({ page }) => {
   await page.goto("/guides");
-  await expect(page.getByRole("heading", { level: 1, name: "All guides" })).toBeVisible();
-  await page.getByPlaceholder("Search by app or category").fill("notion");
+  await expect(page.getByRole("heading", { level: 1, name: "Guides" })).toBeVisible();
+  await page.getByPlaceholder("Search…").fill("notion");
   await expect(page.getByRole("link", { name: /Notion/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /GitHub/ })).toHaveCount(0);
-  await page.getByPlaceholder("Search by app or category").fill("zzz-not-an-app");
+  await page.getByPlaceholder("Search…").fill("zzz-not-an-app");
   await expect(page.getByRole("link", { name: /Research “zzz-not-an-app”/ })).toBeVisible();
 });
