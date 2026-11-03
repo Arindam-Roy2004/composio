@@ -11,8 +11,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/#library", label: "Library" },
-  { href: "/#how", label: "How it works" },
-  { href: "/#evidence", label: "Evidence" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 /** Floating glass bar: transparent at the top, condenses into a blurred pill on scroll. */
@@ -22,16 +21,17 @@ export function SiteHeader() {
   const reduce = useReducedMotion();
   const pathname = usePathname();
   useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 12));
+  const solid = scrolled || pathname !== "/";
 
   return (
     <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4">
       <motion.div
         initial={false}
-        animate={{ maxWidth: scrolled ? 860 : 1152 }}
+        animate={{ maxWidth: scrolled ? 920 : 1180 }}
         transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 32 }}
         className={cn(
           "mx-auto flex h-12 items-center justify-between gap-3 rounded-2xl border px-2.5 pl-3.5 transition-[background-color,border-color,box-shadow] duration-300",
-          scrolled ? "surface-glass border-border shadow-card" : "border-transparent",
+          solid ? "surface-glass border-border shadow-card" : "border-transparent",
         )}
       >
         <Link href="/" className="flex items-center gap-2 rounded-lg text-[15px] font-semibold tracking-tight" aria-label="OAuth Navigator home">

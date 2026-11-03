@@ -2,19 +2,19 @@
 
 import { motion, useReducedMotion } from "motion/react";
 
-/** Fade-up on mount with an optional stagger index (40ms). Disabled under reduced motion. */
-export function Reveal({ children, index = 0, className, as = "div" }: { children: React.ReactNode; index?: number; className?: string; as?: "div" | "section" | "li" }) {
+/** Blur-in fade-up on mount (or when scrolled into view), 60ms stagger. Disabled under reduced motion. */
+export function Reveal({ children, index = 0, className, inView = false }: { children: React.ReactNode; index?: number; className?: string; inView?: boolean }) {
   const reduce = useReducedMotion();
-  const M = motion[as];
-  if (reduce) return <M className={className}>{children}</M>;
+  if (reduce) return <div className={className}>{children}</div>;
+  const to = { opacity: 1, y: 0, filter: "blur(0px)" };
   return (
-    <M
+    <motion.div
       className={className}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1], delay: Math.min(index, 12) * 0.04 }}
+      initial={{ opacity: 0, y: 14, filter: "blur(10px)" }}
+      {...(inView ? { whileInView: to, viewport: { once: true, margin: "-60px" } } : { animate: to })}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: Math.min(index, 10) * 0.06 }}
     >
       {children}
-    </M>
+    </motion.div>
   );
 }

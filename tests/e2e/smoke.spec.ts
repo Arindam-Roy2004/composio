@@ -1,13 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+// Marquees and reveals are motion-only; reduced motion makes elements stable to click.
+test.use({ reducedMotion: "reduce" });
+
 test("home → library card → guide → roadmap renders", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("OAuth app");
-  await page.locator("#library").getByRole("link", { name: /GitHub/ }).click();
+  await page.locator("#library").getByRole("link", { name: /GitHub/ }).first().click();
   await expect(page).toHaveURL(/\/guide\/github$/);
   await expect(page.getByRole("heading", { level: 1, name: "GitHub" })).toBeVisible();
-  const roadmap = page.getByRole("figure", { name: "Setup roadmap" });
-  await expect(roadmap.locator(".react-flow__node")).toHaveCount(7);
+  const roadmap = page.getByRole("figure", { name: "Setup roadmap by owner" });
+  await expect(roadmap.locator(".react-flow__node-step")).toHaveCount(7);
   await expect(page.locator("#sources a[id^=source-]")).not.toHaveCount(0);
   await page.getByRole("tab", { name: "Markdown" }).click();
   await expect(page.locator("pre")).toContainText("# GitHub: OAuth app setup");

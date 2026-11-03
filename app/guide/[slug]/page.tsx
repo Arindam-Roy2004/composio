@@ -6,7 +6,6 @@ import { GuideSidebar, GuideSwitcherMobile } from "@/components/guide/guide-side
 import { GuideBreadcrumb } from "@/components/guide/guide-breadcrumb";
 import { GuideView } from "@/components/guide/guide-view";
 import { Pager } from "@/components/guide/pager";
-import { RoadmapLegend } from "@/components/guide/roadmap";
 import { RoadmapLazy } from "@/components/guide/roadmap-lazy";
 import { Blockers, Nuances, OwnershipMatrix, Prerequisites, ScopesTable, Section, SourceList, StepList, Unknowns } from "@/components/guide/sections";
 import { SourcesProvider } from "@/components/guide/sources-context";
@@ -101,33 +100,32 @@ export default async function GuidePage({ params }: Props) {
               <section key="overview" id="overview" className="scroll-mt-24" aria-label="Overview">
                 <AtAGlance guide={guide} />
               </section>
-              <Section key="roadmap" id="roadmap" title="Roadmap" description="Each step, coloured by who does it. Click a step to jump to its details.">
+              <Section key="roadmap" id="roadmap" title="Roadmap">
                 <div className="rounded-2xl bg-muted/40 p-1.5 ring-1 ring-border">
-                  <RoadmapLazy guide={guide} />
-                  <div className="px-2 pt-2.5 pb-1">
-                    <RoadmapLegend />
+                  <div className="rounded-xl bg-background p-3 ring-1 ring-border">
+                    <RoadmapLazy guide={guide} />
                   </div>
                 </div>
               </Section>
-              <Section key="prerequisites" id="prerequisites" title="Before you start" description="What you need in hand before you open the console.">
+              <Section key="prerequisites" id="prerequisites" title="Before you start">
                 <Prerequisites guide={guide} />
               </Section>
-              <Section key="steps" id="steps" title="Steps" description="The full path from registration to production.">
+              <Section key="steps" id="steps" title="Steps">
                 <StepList guide={guide} />
               </Section>
-              <Section key="scopes" id="scopes" title="Scopes" description="Which permissions exist and which of them trigger a review.">
+              <Section key="scopes" id="scopes" title="Scopes">
                 <ScopesTable guide={guide} />
               </Section>
-              <Section key="nuances" id="nuances" title="Nuances" description="Rules that are easy to miss until they break something.">
+              <Section key="nuances" id="nuances" title="Nuances">
                 <Nuances guide={guide} />
               </Section>
-              <Section key="blockers" id="blockers" title="Blockers" description="Symptoms you might hit, and how to get past them.">
+              <Section key="blockers" id="blockers" title="Blockers">
                 <Blockers guide={guide} />
               </Section>
-              <Section key="ownership" id="ownership" title="Agent vs you" description="What an AI agent can do for you, and where you have to take over.">
+              <Section key="ownership" id="ownership" title="Agent vs you">
                 <OwnershipMatrix guide={guide} />
               </Section>
-              <Section key="unknowns" id="unknowns" title="What we couldn’t confirm" description="Stated openly rather than guessed.">
+              <Section key="unknowns" id="unknowns" title="What we couldn’t confirm">
                 <Unknowns guide={guide} />
               </Section>
               <Section key="sources" id="sources" title="Sources">

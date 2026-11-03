@@ -12,7 +12,8 @@ const W = 970;
 const H = 700;
 
 const HIDE = `
-  header, footer, nextjs-portal, [data-nextjs-toast], aside { display: none !important; }
+  header.sticky, body footer, nextjs-portal, [data-nextjs-toast], aside { display: none !important; }
+  main > div { grid-template-columns: minmax(0, 1fr) !important; max-width: 1000px !important; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 `;
 
@@ -21,7 +22,7 @@ async function run() {
   for (const theme of ["dark", "light"] as const) {
     const dir = join(process.cwd(), "public/hero", theme);
     mkdirSync(dir, { recursive: true });
-    const ctx = await browser.newContext({ viewport: { width: 1180, height: 900 }, deviceScaleFactor: 1, reducedMotion: "reduce" });
+    const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1, reducedMotion: "reduce" });
     await ctx.addInitScript((t) => localStorage.setItem("theme", t), theme);
     const page = await ctx.newPage();
     let n = 0;

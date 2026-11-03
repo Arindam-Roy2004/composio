@@ -244,8 +244,6 @@ export function GenerateBox() {
           <p className="flex items-center gap-1.5 text-ev-uncertain">
             <CloudSlash size={14} weight="duotone" /> You’re offline. Library guides you’ve opened may still load.
           </p>
-        ) : state.status === "idle" ? (
-          <p className="text-subtle-foreground">Research takes about 1–2 minutes. Existing guides open instantly.</p>
         ) : null}
       </div>
 

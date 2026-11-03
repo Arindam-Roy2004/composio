@@ -9,9 +9,11 @@ import { Inner, Tray } from "@/components/guide/sections";
 import { APPROVAL_LABEL, DIFFICULTY_META, domainOf, formatApproval, formatDate, formatMinutes } from "@/lib/format";
 import type { Guide } from "@/lib/schema/guide.schema";
 
-function Cell({ icon, label, children, claim }: { icon: React.ReactNode; label: string; children: React.ReactNode; claim: { evidence: Guide["verdict"]["evidence"]; sourceIds: string[] } }) {
+type Claim = { evidence: Guide["verdict"]["evidence"]; sourceIds: string[] };
+
+function Stat({ icon, label, claim, value, sub }: { icon: React.ReactNode; label: string; claim: Claim; value: React.ReactNode; sub: string }) {
   return (
-    <Inner className="flex flex-col p-4 sm:p-5">
+    <div className="p-4 sm:p-5">
       <div className="flex items-center justify-between gap-2">
         <span className="flex items-center gap-1.5 text-[13px] whitespace-nowrap text-muted-foreground">
           {icon}
@@ -19,8 +21,9 @@ function Cell({ icon, label, children, claim }: { icon: React.ReactNode; label: 
         </span>
         <EvidenceBadge evidence={claim.evidence} sourceIds={claim.sourceIds} />
       </div>
-      <div className="mt-4 flex-1">{children}</div>
-    </Inner>
+      <div className="mt-3 text-[26px] leading-none font-semibold tracking-[-0.03em]">{value}</div>
+      <p className="mt-2 text-[13px] text-muted-foreground">{sub}</p>
+    </div>
   );
 }
 
@@ -33,34 +36,26 @@ export function AtAGlance({ guide }: { guide: Guide }) {
           {guide.sources.length > 0 && (
             <CitationStack limit={4} citations={guide.sources.map((s) => ({ id: s.id, title: s.title, domain: domainOf(s.url), url: s.url }))} />
           )}
-          <span>
-            {guide.generatedBy === "library" ? "Researched from official docs" : "AI-generated"} · {formatDate(guide.generatedAt)}
-            {guide.lastVerifiedAt ? ` · verified ${formatDate(guide.lastVerifiedAt)}` : " · not yet hands-on verified"}
-          </span>
+          {guide.generatedBy === "library" ? "Researched" : "Generated"} {formatDate(guide.generatedAt)}
+          {guide.lastVerifiedAt && ` · verified ${formatDate(guide.lastVerifiedAt)}`}
         </span>
       }
       meta={`${guide.sources.length} sources`}
     >
-      <div className="grid grid-cols-1 gap-1.5 md:grid-cols-3">
-        <Cell icon={<Gauge size={15} weight="duotone" />} label="Difficulty" claim={guide.verdict}>
-          <DifficultyMeter difficulty={guide.verdict.difficulty} />
-          <p className="mt-2.5 text-[13px] text-muted-foreground">{DIFFICULTY_META[guide.verdict.difficulty].description}</p>
-        </Cell>
-        <Cell icon={<Clock size={15} weight="duotone" />} label="Active work" claim={a}>
-          <p className="text-[28px] leading-none font-semibold tracking-[-0.03em]">
-            <CountUp text={formatMinutes(a.minMinutes, a.maxMinutes)} />
-          </p>
-          <p className="mt-2.5 text-[13px] text-muted-foreground">Hands-on time for forms, config and code.</p>
-        </Cell>
-        <Cell icon={<HourglassMedium size={15} weight="duotone" />} label="Approval wait" claim={w}>
-          <p className="text-[28px] leading-none font-semibold tracking-[-0.03em]">
-            <CountUp text={formatApproval(w)} />
-          </p>
-          <p className="mt-2.5 text-[13px] text-muted-foreground">
-            <span className="font-medium text-foreground">{APPROVAL_LABEL[w.required]}.</span> {w.note}
-          </p>
-        </Cell>
-      </div>
+      <Inner>
+        <div className="grid grid-cols-1 divide-y md:grid-cols-3 md:divide-x md:divide-y-0">
+          <Stat
+            icon={<Gauge size={15} weight="duotone" />}
+            label="Difficulty"
+            claim={guide.verdict}
+            value={<DifficultyMeter difficulty={guide.verdict.difficulty} />}
+            sub={DIFFICULTY_META[guide.verdict.difficulty].description}
+          />
+          <Stat icon={<Clock size={15} weight="duotone" />} label="Active work" claim={a} value={<CountUp text={formatMinutes(a.minMinutes, a.maxMinutes)} />} sub="Forms, config and code" />
+          <Stat icon={<HourglassMedium size={15} weight="duotone" />} label="Approval wait" claim={w} value={<CountUp text={formatApproval(w)} />} sub={APPROVAL_LABEL[w.required]} />
+        </div>
+        {w.note && <p className="border-t px-4 py-3 text-[13px] leading-relaxed text-muted-foreground sm:px-5">{w.note}</p>}
+      </Inner>
     </Tray>
   );
 }

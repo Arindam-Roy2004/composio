@@ -15,13 +15,13 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-muted-foreground">
             <li><Link href="/#library" className="hover:text-foreground">Library</Link></li>
             <li><Link href="/#generate" className="hover:text-foreground">Research an app</Link></li>
-            <li><Link href="/#how" className="hover:text-foreground">How it works</Link></li>
+            <li><Link href="/#faq" className="hover:text-foreground">FAQ</Link></li>
           </ul>
         </nav>
         <nav aria-label="Method" className="text-sm">
           <p className="font-medium">Method</p>
           <ul className="mt-3 space-y-2 text-muted-foreground">
-            <li><Link href="/#evidence" className="hover:text-foreground">Evidence labels</Link></li>
+            <li><Link href="/#faq" className="hover:text-foreground">How we verify</Link></li>
             <li><Link href="/guide/github" className="hover:text-foreground">Example guide</Link></li>
           </ul>
         </nav>

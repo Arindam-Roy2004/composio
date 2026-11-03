@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowSquareOut, ArrowUpRight, Check, Copy, Hash, Robot, SealQuestion, User, Warning } from "@phosphor-icons/react";
+import { ArrowSquareOut, ArrowUpRight, Check, Copy, Hash, Robot, User, Warning } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BouncyAccordion } from "@/components/motion/bouncy-accordion";
@@ -38,17 +38,16 @@ export function Inner({ children, className, id }: { children: React.ReactNode; 
   );
 }
 
-export function Section({ id, title, description, children, className }: { id: string; title: string; description?: string; children: React.ReactNode; className?: string }) {
+export function Section({ id, title, children, className }: { id: string; title: string; children: React.ReactNode; className?: string }) {
   return (
     <section id={id} aria-labelledby={`${id}-title`} className={cn("scroll-mt-24", className)}>
-      <h2 id={`${id}-title`} className="group flex items-center gap-2 text-[22px] font-semibold tracking-[-0.02em]">
+      <h2 id={`${id}-title`} className="group flex items-center gap-2 text-xl font-semibold tracking-[-0.02em]">
         {title}
         <a href={`#${id}`} className="text-subtle-foreground opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100" aria-label={`Link to ${title}`}>
           <Hash size={16} />
         </a>
       </h2>
-      {description && <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">{description}</p>}
-      <div className="mt-5">{children}</div>
+            <div className="mt-4">{children}</div>
     </section>
   );
 }
@@ -120,7 +119,7 @@ export function Prerequisites({ guide }: { guide: Guide }) {
   if (!guide.prerequisites.length) return <Tray><Inner><Empty>No prerequisites found beyond an account.</Empty></Inner></Tray>;
   const count = guide.prerequisites.filter((p) => done[p.id]).length;
   return (
-    <Tray label="Check these off before you start. Progress is saved in this browser." meta={`${count}/${guide.prerequisites.length}`}>
+    <Tray label="Checklist" meta={`${count}/${guide.prerequisites.length} done`}>
       <Inner className="divide-y">
         {guide.prerequisites.map((p) => (
           <label key={p.id} htmlFor={`pre-${p.id}`} className="flex cursor-pointer gap-3 p-4 transition-colors hover:bg-muted/30">
@@ -145,7 +144,7 @@ export function StepList({ guide }: { guide: Guide }) {
   for (const b of guide.blockers) if (b.stepId) blockersByStep.set(b.stepId, [...(blockersByStep.get(b.stepId) ?? []), b]);
   const steps = [...guide.steps].sort((a, b) => a.order - b.order);
   return (
-    <Tray label={`${steps.length} steps, in order`}>
+    <Tray>
       {steps.map((s) => (
         <Inner key={s.id} id={`step-${s.id}`} className="scroll-mt-24 p-4 sm:p-5">
           <div className="flex gap-3.5">
@@ -191,7 +190,7 @@ const TIER = {
 export function ScopesTable({ guide }: { guide: Guide }) {
   if (!guide.scopes.length) return <Tray><Inner><Empty>No scope information found.</Empty></Inner></Tray>;
   return (
-    <Tray label="Request the minimum you need" meta={`${guide.scopes.length} scopes`}>
+    <Tray>
       <Inner className="relative overflow-x-auto">
         <table className="w-full min-w-[600px] text-sm">
           <thead>
@@ -257,7 +256,7 @@ export function Blockers({ guide }: { guide: Guide }) {
   if (!guide.blockers.length) return <Tray><Inner><Empty>No known blockers. That doesn’t mean there aren’t any.</Empty></Inner></Tray>;
   const stepTitle = new Map(guide.steps.map((s) => [s.id, s.title]));
   return (
-    <Tray label="What tends to go wrong, and the fix" meta={`${guide.blockers.length}`}>
+    <Tray>
       <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
         {guide.blockers.map((b) => (
           <Inner key={b.id} id={`blocker-${b.id}`} className="flex scroll-mt-24 flex-col p-4">
@@ -323,7 +322,7 @@ export function OwnershipMatrix({ guide }: { guide: Guide }) {
 
 export function Unknowns({ guide }: { guide: Guide }) {
   return (
-    <Tray label={<span className="flex items-center gap-1.5 text-ev-uncertain"><SealQuestion size={14} weight="duotone" /> Treat these as open questions</span>} meta={`${guide.unknowns.length}`}>
+    <Tray>
       <Inner className="divide-y">
         {guide.unknowns.length ? (
           guide.unknowns.map((u, i) => (
@@ -345,7 +344,7 @@ const SOURCE_KIND = { official_docs: "Official docs", console: "Console", policy
 export function SourceList({ guide }: { guide: Guide }) {
   if (!guide.sources.length) return <Tray><Inner><Empty>No sources. Treat every claim above as unconfirmed.</Empty></Inner></Tray>;
   return (
-    <Tray label="Every evidence label links here" meta={`${guide.sources.length} cited`}>
+    <Tray>
       <Inner className="divide-y">
         {guide.sources.map((s) => (
           <a
