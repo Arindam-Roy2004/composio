@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "slug": "github",
+  "appName": "GitHub",
+  "website": "https://github.com",
+  "category": "Developer tools",
+  "generatedAt": "2026-11-03T00:00:00.000Z",
+  "generatedBy": "library",
+  "oauthSupport": "oauth2_pkce",
+  "verdict": {
+    "difficulty": "easy",
+    "oneLiner": "Register an OAuth App in your settings and get a client ID immediately. GitHub does not review OAuth Apps; org owners may need to approve access.",
+    "evidence": "documented",
+    "sourceIds": ["s1", "s4"]
+  },
+  "time": {
+    "activeSetup": {
+      "minMinutes": 5,
+      "maxMinutes": 15,
+      "evidence": "uncertain",
+      "sourceIds": []
+    },
+    "approvalWait": {
+      "required": "no",
+      "minDays": 0,
+      "maxDays": 0,
+      "note": "GitHub has no review step: the client ID is issued when you click Register application. Separately, organizations with OAuth app access restrictions (on by default for new orgs) need an org owner to approve your app before it can reach that org's private data.",
+      "evidence": "documented",
+      "sourceIds": ["s1", "s4"]
+    }
+  },
+  "prerequisites": [
+    {
+      "id": "github-account",
+      "label": "A GitHub account (or admin rights on the owning organization)",
+      "detail": "OAuth Apps can be created under your personal account or under any organization you administer. A user or organization can own up to 100 OAuth Apps.",
+      "kind": "account",
+      "evidence": "documented",
+      "sourceIds": ["s1"]
+    },
+    {
+      "id": "callback-url",
+      "label": "Your authorization callback URL",
+      "detail": "Decide where GitHub should redirect after consent. You can register up to 10 callback URLs. For local development prefer http://127.0.0.1 or http://[::1] over localhost; the loopback port does not have to match.",
+      "kind": "technical",
+      "evidence": "documented",
+      "sourceIds": ["s1", "s2"]
+    },
+    {
+      "id": "homepage-url",
+      "label": "A homepage URL for the app",
+      "detail": "The form asks for the full URL to your application's website. Everything in an OAuth App's settings should be treated as public, so avoid internal URLs.",
+      "kind": "technical",
+      "evidence": "documented",
+      "sourceIds": ["s1"]
+    }
+  ],
+  "steps": [
+    {
+      "id": "decide-app-type",
+      "order": 1,
+      "title": "Decide: OAuth App or GitHub App",
+      "body": "GitHub recommends considering a GitHub App instead: GitHub Apps use fine-grained permissions and short-lived tokens and can act without a user. Choose an OAuth App if you only need to act on behalf of a signed-in user with classic scopes.",
+      "owner": "human",
+      "phase": "prepare",
+      "estMinutes": null,
+      "agentCanHelp": "Compares the scopes you need against GitHub App permissions and recommends one.",
+      "evidence": "documented",
+      "sourceIds": ["s1", "s3"]
+    },
+    {
+      "id": "open-developer-settings",
+      "order": 2,
+      "title": "Open Developer settings → OAuth Apps",
+      "body": "Profile picture → Settings → Developer settings → OAuth Apps → New OAuth App (the button reads 'Register a new application' if you have never created one). For an org-owned app, use the organization's settings instead.",
+      "owner": "human",
+      "phase": "create",
+      "estMinutes": null,
+      "url": "https://github.com/settings/applications/new",
+      "evidence": "documented",
+      "sourceIds": ["s1"]
+    },
+    {
+      "id": "fill-form",
+      "order": 3,
+      "title": "Fill in name, homepage URL and callback URL",
+      "body": "Enter the Application name, Homepage URL, an optional description, and the Authorization callback URL (add up to 10). Tick Enable Device Flow only for CLI/headless apps. 'Expire user access tokens' is on by default; untick it only if your code can't handle refresh tokens yet.",
+      "owner": "human",
+      "phase": "create",
+      "estMinutes": null,
+      "agentCanHelp": "Drafts the name, description and callback URLs for your environments.",
+      "evidence": "documented",
+      "sourceIds": ["s1"]
+    },
+    {
+      "id": "register-and-secret",
+      "order": 4,
+      "title": "Register and generate a client secret",
+      "body": "Click Register application to get the client ID. Generate a client secret on the app page and store it in your secret manager; it is only needed server-side for the token exchange.",
+      "owner": "human",
+      "phase": "create",
+      "estMinutes": null,
+      "evidence": "uncertain",
+      "sourceIds": []
+    },
+    {
+      "id": "implement-flow",
+      "order": 5,
+      "title": "Implement the web flow (with PKCE)",
+      "body": "Redirect users to https://github.com/login/oauth/authorize with client_id, redirect_uri, scope and state, then POST the code to https://github.com/login/oauth/access_token. PKCE is supported with code_challenge_method=S256 only. The implicit grant is not supported.",
+      "owner": "agent",
+      "phase": "configure",
+      "estMinutes": null,
+      "agentCanHelp": "Writes the authorize redirect, state check, PKCE pair and token exchange code.",
+      "evidence": "documented",
+      "sourceIds": ["s2"]
+    },
+    {
+      "id": "handle-refresh",
+      "order": 6,
+      "title": "Handle expiring tokens and refresh",
+      "body": "With expiring tokens, access tokens last 8 hours and refresh tokens 6 months unused. Using a refresh token invalidates it and the old access token, so persist the new pair atomically.",
+      "owner": "agent",
+      "phase": "configure",
+      "estMinutes": null,
+      "agentCanHelp": "Implements refresh-token rotation and storage.",
+      "evidence": "documented",
+      "sourceIds": ["s2"]
+    },
+    {
+      "id": "org-approval",
+      "order": 7,
+      "title": "Get org owner approval where restrictions are on",
+      "body": "If users need data in an organization that has OAuth app access restrictions enabled, an org owner must approve your app. Users can request approval from the consent flow; owners are notified.",
+      "owner": "provider",
+      "phase": "launch",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": ["s4"]
+    }
+  ],
+  "scopes": [
+    { "name": "read:user", "tier": "basic", "triggersReview": false, "note": "Read profile data.", "evidence": "documented", "sourceIds": ["s3"] },
+    { "name": "user:email", "tier": "basic", "triggersReview": false, "note": "Read the user's email addresses.", "evidence": "documented", "sourceIds": ["s3"] },
+    { "name": "public_repo", "tier": "sensitive", "triggersReview": false, "note": "Read/write access to public repositories only.", "evidence": "documented", "sourceIds": ["s3"] },
+    { "name": "repo", "tier": "sensitive", "triggersReview": false, "note": "Full access to public and private repos the user can access. No GitHub review, but org restrictions may block private org repos.", "evidence": "documented", "sourceIds": ["s3", "s4"] },
+    { "name": "read:org", "tier": "basic", "triggersReview": false, "note": "Read-only org, team and membership data.", "evidence": "documented", "sourceIds": ["s3"] },
+    { "name": "workflow", "tier": "sensitive", "triggersReview": false, "note": "Add and update GitHub Actions workflow files.", "evidence": "documented", "sourceIds": ["s3"] },
+    { "name": "admin:org", "tier": "sensitive", "triggersReview": false, "note": "Full management of an organization. Request only if essential.", "evidence": "documented", "sourceIds": ["s3"] }
+  ],
+  "nuances": [
+    {
+      "id": "redirect-matching",
+      "title": "Redirect URI matching is exact unless wildcard matching is enabled",
+      "body": "Without wildcard matching the redirect_uri must exactly match a callback URL. With it, host and port must match and the path must be a subdirectory of the callback URL. If redirect_uri is omitted, GitHub uses the first callback URL.",
+      "evidence": "documented",
+      "sourceIds": ["s2"]
+    },
+    {
+      "id": "loopback",
+      "title": "Loopback redirects ignore the port",
+      "body": "For loopback callback URLs the redirect_uri port does not need to match. The docs recommend 127.0.0.1 or ::1 over localhost.",
+      "evidence": "documented",
+      "sourceIds": ["s2"]
+    },
+    {
+      "id": "token-cap",
+      "title": "10 tokens per user/app/scope combination",
+      "body": "Creating an 11th token for the same user, app and scope set revokes an existing one (oldest unused first). Token creation is also limited to 10 per hour; above that users see a re-authorization prompt.",
+      "evidence": "documented",
+      "sourceIds": ["s2"]
+    },
+    {
+      "id": "scopes-no-escalation",
+      "title": "Scopes never exceed the user's own permissions",
+      "body": "A scope only limits what the token can do. It grants nothing beyond what the authorizing user already has, and users can edit the scopes they grant.",
+      "evidence": "documented",
+      "sourceIds": ["s3"]
+    },
+    {
+      "id": "no-scope-change-on-refresh",
+      "title": "You cannot change scopes during refresh",
+      "body": "The scope parameter is not accepted on token refresh. To get more scopes, send the user through authorization again.",
+      "evidence": "documented",
+      "sourceIds": ["s2"]
+    }
+  ],
+  "blockers": [
+    {
+      "id": "redirect-mismatch",
+      "title": "redirect_uri mismatch",
+      "symptom": "The authorize page shows an error that the redirect_uri is not associated with this application.",
+      "fix": "Add the exact URL as a callback URL (up to 10), or enable wildcard matching and use a subdirectory path. For local dev use 127.0.0.1.",
+      "severity": "medium",
+      "stepId": "fill-form",
+      "evidence": "documented",
+      "sourceIds": ["s2"]
+    },
+    {
+      "id": "org-data-missing",
+      "title": "Private org repos are missing from API results",
+      "symptom": "The token works for the user's own repos but org repositories are absent or 404.",
+      "fix": "The org has OAuth app access restrictions on. Ask an org owner to approve the app, or have users request approval during consent.",
+      "severity": "high",
+      "stepId": "org-approval",
+      "evidence": "documented",
+      "sourceIds": ["s4"]
+    },
+    {
+      "id": "refresh-race",
+      "title": "Refresh token stops working",
+      "symptom": "A second refresh with the same refresh token fails.",
+      "fix": "Refresh tokens are single-use: store the new refresh token returned by each refresh and serialise refreshes per user.",
+      "severity": "medium",
+      "stepId": "handle-refresh",
+      "evidence": "documented",
+      "sourceIds": ["s2"]
+    }
+  ],
+  "ownership": {
+    "agentCan": [
+      "Choose minimal scopes for your use case",
+      "Write the authorize redirect, state and PKCE handling",
+      "Write the token exchange and refresh-token rotation",
+      "Draft app name, description and callback URLs"
+    ],
+    "humanMust": [
+      "Sign in to GitHub and register the OAuth App",
+      "Generate and store the client secret",
+      "Ask org owners to approve the app where restrictions apply"
+    ]
+  },
+  "unknowns": [
+    "Active setup time (5–15 min) is our estimate, not a documented figure. TODO(human): time a real registration and mark it tested.",
+    "Exact client-secret generation UI was not captured from docs in this guide. TODO(human): confirm during the test registration."
+  ],
+  "sources": [
+    { "id": "s1", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app", "title": "Creating an OAuth app", "kind": "official_docs", "fetchedAt": "2026-11-03T00:00:00.000Z" },
+    { "id": "s2", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps", "title": "Authorizing OAuth apps", "kind": "official_docs", "fetchedAt": "2026-11-03T00:00:00.000Z" },
+    { "id": "s3", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps", "title": "Scopes for OAuth apps", "kind": "official_docs", "fetchedAt": "2026-11-03T00:00:00.000Z" },
+    { "id": "s4", "url": "https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/about-oauth-app-access-restrictions", "title": "About OAuth app access restrictions", "kind": "policy", "fetchedAt": "2026-11-03T00:00:00.000Z" }
+  ]
+}
