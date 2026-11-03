@@ -1,10 +1,11 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { BUDGET, type RunState } from "@/lib/agent/state";
+import { log } from "@/lib/log";
 
 export const NoteInput = z.object({
   claim: z.string().min(5).max(300).describe("One specific, checkable finding"),
-  sourceUrl: z.url().describe("URL of a page you READ with readPage that supports the claim"),
+  source: z.string().max(2000).describe("The sourceId returned by readPage (e.g. \"s2\"), or that page's exact URL"),
   quote: z.string().max(300).describe("Short verbatim quote from that page"),
 });
 
@@ -14,9 +15,13 @@ export const noteTool = (state: RunState) =>
     inputSchema: NoteInput,
     execute: async (note) => {
       if (state.notes.length >= BUDGET.maxNotes) return { error: "Note limit reached." };
-      const source = state.sourceFor(note.sourceUrl);
-      if (!source) return { error: "sourceUrl must be a page you read with readPage in this run." };
-      state.notes.push({ ...note, sourceUrl: source.url });
+      const ref = note.source.trim();
+      const source = /^s\d{1,2}$/.test(ref) ? state.sourceById(ref) : state.sourceFor(ref);
+      if (!source) {
+        log.warn("note rejected: unknown source", { ref: ref.slice(0, 120) });
+        return { error: "source must be the sourceId (e.g. s2) of a page you read with readPage in this run." };
+      }
+      state.notes.push({ claim: note.claim, quote: note.quote, sourceUrl: source.url });
       state.emit({ type: "finding", claim: note.claim, sourceUrl: source.url });
       return { ok: true, sourceId: source.id };
     },

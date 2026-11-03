@@ -12,10 +12,10 @@ export const BUDGET = {
   maxNotes: 40,
   maxConsoleProbes: 2,
   searchTimeoutMs: 10_000,
-  scrapeTimeoutMs: 45_000,
-  probeTimeoutMs: 20_000,
+  scrapeTimeoutMs: 20_000,
+  probeTimeoutMs: 12_000,
   runDeadlineMs: 120_000,
-  researchDeadlineMs: 70_000, // leave room for probe + synthesis inside the run deadline
+  researchDeadlineMs: 75_000, // synthesis takes ~10s on the default model; probe and synthesis still fit in 120s
 } as const;
 
 export type Note = { claim: string; sourceUrl: string; quote: string };
@@ -27,7 +27,8 @@ export type AgentDeps = {
   now?: () => number;
 };
 
-const normUrl = (u: string) => u.replace(/#.*$/, "").replace(/\/$/, "");
+// Same page regardless of fragment, query string or trailing slash.
+const normUrl = (u: string) => u.replace(/[?#].*$/, "").replace(/\/$/, "");
 
 export class RunState {
   toolCalls = 0;
@@ -99,6 +100,10 @@ export class RunState {
       this.sources.set(normUrl(page.finalUrl), source);
     }
     return source;
+  }
+
+  sourceById(id: string): Source | undefined {
+    return this.uniqueSources().find((s) => s.id === id);
   }
 
   sourceFor(url: string): Source | undefined {

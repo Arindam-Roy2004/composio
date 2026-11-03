@@ -8,6 +8,8 @@ export type VerifyContext = {
   mode: "agent" | "library";
   fetchedUrls?: Set<string>;
   probedUrls?: Set<string>;
+  /** Agent mode: pages the agent recorded notes from (or probed). Only these may be cited. */
+  evidenceUrls?: Set<string>;
 };
 
 export type VerifyResult = { guide: Guide; notes: string[]; downgraded: number };
@@ -29,7 +31,8 @@ function claimsOf(g: Guide): { label: string; claim: Claim }[] {
   ];
 }
 
-const normUrl = (u: string) => u.replace(/#.*$/, "").replace(/\/$/, "");
+// Same page regardless of fragment, query string or trailing slash.
+const normUrl = (u: string) => u.replace(/[?#].*$/, "").replace(/\/$/, "");
 
 export function verifyGuide(input: Guide, ctx: VerifyContext): VerifyResult {
   const g: Guide = structuredClone(input);
@@ -60,6 +63,15 @@ export function verifyGuide(input: Guide, ctx: VerifyContext): VerifyResult {
     if (missing.length) {
       claim.sourceIds = claim.sourceIds.filter((id) => byId.has(id));
       notes.push(`${label}: dropped unknown source ids ${missing.join(", ")}`);
+    }
+    // 3. In agent mode a claim may only cite pages the agent actually took notes from (or probed).
+    //    A page known only by its title is not evidence.
+    if (ctx.evidenceUrls) {
+      const unread = claim.sourceIds.filter((id) => !ctx.evidenceUrls!.has(normUrl(byId.get(id)!.url)));
+      if (unread.length) {
+        claim.sourceIds = claim.sourceIds.filter((id) => !unread.includes(id));
+        notes.push(`${label}: dropped ${unread.join(", ")} (no notes were taken from that page)`);
+      }
     }
     const cited = claim.sourceIds.map((id) => byId.get(id)!);
 

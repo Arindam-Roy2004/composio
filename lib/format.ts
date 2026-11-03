@@ -53,7 +53,7 @@ export const EVIDENCE_META: Record<EvidenceLevel, { label: string; description: 
   tested: { label: "Tested", description: "A person actually did this and recorded the date." },
   probed: { label: "Probed", description: "Our agent reached the page or console and observed it, without signing in." },
   documented: { label: "Documented", description: "Stated in the provider's official docs or policy pages." },
-  community: { label: "Community", description: "Reported in a forum, blog or Q&A site. Not official." },
+  community: { label: "Community", description: "From a source we could not confirm is the provider’s own: a forum, blog, Q&A site or third-party docs." },
   uncertain: { label: "Uncertain", description: "Not confirmed. We say what is unknown and how to find out." },
 };
 

@@ -5,7 +5,7 @@ import { readPageTool } from "@/lib/agent/tools/readPage";
 import { runSearch, webSearchTool } from "@/lib/agent/tools/webSearch";
 import { flagConsoleTool, noteTool } from "@/lib/agent/tools/note";
 import { researchSystemPrompt, researchUserPrompt, SYNTHESIS_SYSTEM, synthesisPrompt } from "@/lib/agent/prompts";
-import { BUDGET, RunState, type AgentDeps } from "@/lib/agent/state";
+import { BUDGET, normUrl, RunState, type AgentDeps } from "@/lib/agent/state";
 import { pickOfficialDomain, registrableDomain } from "@/lib/agent/sources";
 import { verifyGuide } from "@/lib/agent/verify";
 import { clampToGuide, GuideDraftSchema, type Guide, type GuideDraft, type Source } from "@/lib/schema/guide.schema";
@@ -41,11 +41,15 @@ export function aiSdkBrain(model: LanguageModel, modelId: string): Brain {
         abortSignal: signal,
         maxRetries: 1,
         onError: ({ error }) => log.warn("research stream error", { error: error instanceof Error ? error.message : String(error) }),
+        onStepFinish: (step) =>
+          log.info("research step", { tools: step.toolCalls.map((c) => c.toolName), finishReason: step.finishReason }),
       });
       await result.consumeStream();
     },
     async synthesise({ system, prompt, signal }) {
-      const { output } = await generateText({
+      const t0 = Date.now();
+      log.info("synthesis start", { model: modelId, promptChars: prompt.length });
+      const { output, usage } = await generateText({
         model,
         system,
         prompt,
@@ -53,6 +57,7 @@ export function aiSdkBrain(model: LanguageModel, modelId: string): Brain {
         abortSignal: signal,
         maxRetries: 1,
       });
+      log.info("synthesis done", { ms: Date.now() - t0, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens });
       return output;
     },
   };
@@ -175,7 +180,8 @@ function finish(state: RunState, raw: unknown, modelId: string, now: () => numbe
     log.error("assembled guide invalid", { issues: clamped.error.issues.slice(0, 5).map((i) => `${i.path.join(".")}: ${i.message}`) });
     throw new SynthesisError();
   }
-  const r = verifyGuide(clamped.data, { mode: "agent", fetchedUrls: state.fetchedUrlSet(), probedUrls: state.probedUrls });
+  const evidenceUrls = new Set([...state.notes.map((n) => normUrl(n.sourceUrl)), ...state.probedUrls]);
+  const r = verifyGuide(clamped.data, { mode: "agent", fetchedUrls: state.fetchedUrlSet(), probedUrls: state.probedUrls, evidenceUrls });
   r.guide.agentRun = {
     toolCalls: state.toolCalls,
     pagesRead: state.pagesRead,
@@ -204,6 +210,8 @@ function uniqueIds<T extends { id: string }>(items: T[], fallback: (t: T, i: num
 /** Joins the model's draft with code-owned fields. Sources come only from pages fetched this run. */
 export function assemble(query: SanitizedQuery, draft: GuideDraft, sources: Source[], officialDomain: string): Record<string, unknown> {
   const d = structuredClone(draft);
+  // Placeholder rows like "Unknown — not enumerated in sources" are not scopes.
+  d.scopes = d.scopes.filter((sc) => !/\s/.test(sc.name.trim()) || !/unknown|not (listed|enumerated|found|documented)|n\/a/i.test(sc.name));
   const stepMap = uniqueIds(d.steps, (s) => s.title);
   uniqueIds(d.prerequisites, (p) => p.label);
   uniqueIds(d.nuances, (n) => n.title);

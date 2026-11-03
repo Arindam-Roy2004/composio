@@ -85,6 +85,17 @@ describe("verifyGuide", () => {
     expect(r.guide.time.approvalWait).toMatchObject({ minDays: null, maxDays: null, evidence: "uncertain" });
   });
 
+  it("rejects citations of pages the agent never took notes from", () => {
+    const g = baseGuide();
+    const noted = new Set([g.sources[0]!.url]);
+    const r = verifyGuide(g, { mode: "agent", fetchedUrls: fetchedAll(g), evidenceUrls: noted });
+    // s2 (authorizing) was fetched but has no notes: claims citing only s2 become uncertain
+    const handleRefresh = r.guide.steps.find((s) => s.id === "handle-refresh")!;
+    expect(handleRefresh.sourceIds).toEqual([]);
+    expect(handleRefresh.evidence).toBe("uncertain");
+    expect(r.notes.join()).toMatch(/no notes were taken/);
+  });
+
   it("detaches blockers pointing at unknown steps", () => {
     const g = baseGuide();
     g.blockers[0]!.stepId = "nope";

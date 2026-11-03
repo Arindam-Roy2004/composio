@@ -9,7 +9,8 @@ import { getRedis } from "@/lib/storage/redis";
 export type LimitKey = "generate" | "read";
 
 const LIMITS: Record<LimitKey, { tokens: number; window: `${number} ${"s" | "m" | "h"}` }> = {
-  generate: { tokens: 5, window: "1 h" },
+  // 5 real runs per IP per hour in production; looser locally so development isn't blocked.
+  generate: { tokens: process.env.NODE_ENV === "production" ? 5 : 50, window: "1 h" },
   read: { tokens: 60, window: "1 m" },
 };
 
@@ -59,12 +60,14 @@ export async function acquireRunLock(ipHash: string): Promise<(() => Promise<voi
   const token = randomUUID();
   const ok = await redis.set(key, token, { nx: true, ex: LOCK_TTL_S });
   if (ok !== "OK") return null;
+  log.info("run lock acquired", { ip: ipHash.slice(0, 8) });
   return async () => {
     // Compare-and-delete so an expired lock taken by a newer run isn't released by us.
-    await redis.eval(
+    const released = await redis.eval(
       `if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) else return 0 end`,
       [key],
       [token],
     );
+    log.info("run lock released", { ip: ipHash.slice(0, 8), released });
   };
 }

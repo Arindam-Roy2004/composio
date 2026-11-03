@@ -64,8 +64,10 @@ describe("runAgent", () => {
     const events: AgentEvent[] = [];
     const brain = scriptedBrain([
       { tool: "readPage", input: { url: docs } },
-      { tool: "note", input: { claim: "Apps are created in Developer settings", sourceUrl: docs, quote: "Developer settings" } },
-      { tool: "note", input: { claim: "Invented page", sourceUrl: "https://evil.test/never-read", quote: "" } },
+      { tool: "note", input: { claim: "Apps are created in Developer settings", source: "s1", quote: "Developer settings" } },
+      { tool: "note", input: { claim: "Same page by URL", source: docs, quote: "" } },
+      { tool: "note", input: { claim: "Invented page", source: "https://evil.test/never-read", quote: "" } },
+      { tool: "note", input: { claim: "Invented id", source: "s9", quote: "" } },
       { tool: "flagConsoleUrl", input: { url: "https://github.com/settings/applications/new" } },
     ]);
     const r = await runAgent({ query, emit: (e) => events.push(e), deps: fakeDeps(), brain });
@@ -82,7 +84,7 @@ describe("runAgent", () => {
     const types = events.map((e) => e.type);
     expect(types).toContain("search");
     expect(types).toContain("read");
-    expect(events.filter((e) => e.type === "finding")).toHaveLength(1); // the invented one was refused
+    expect(events.filter((e) => e.type === "finding")).toHaveLength(2); // by id and by URL; invented ones refused
     expect(events.find((e) => e.type === "probe")).toMatchObject({ requiresLogin: true });
     expect(events.find((e) => e.type === "verification")).toBeTruthy();
     const stages = events.filter((e) => e.type === "stage").map((e) => `${e.stage}:${e.status}`);
