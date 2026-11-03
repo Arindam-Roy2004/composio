@@ -2,7 +2,7 @@
 
 import "@xyflow/react/dist/style.css";
 import { Background, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from "@xyflow/react";
-import { TriangleAlert } from "lucide-react";
+import { Warning as TriangleAlert } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { OwnerBadge } from "@/components/guide/owner-badge";
@@ -56,7 +56,7 @@ function StepCard({ data }: NodeProps<StepNode>) {
         )}
         {blockers > 0 && (
           <span className="ml-auto inline-flex items-center gap-0.5 rounded-full bg-destructive/15 px-1.5 text-[10px] font-medium text-destructive" title={`${blockers} known blocker${blockers > 1 ? "s" : ""}`}>
-            <TriangleAlert className="size-3" strokeWidth={1.75} aria-hidden />
+            <TriangleAlert className="size-3" aria-hidden />
             {blockers}
           </span>
         )}
@@ -175,7 +175,7 @@ export function RoadmapLegend() {
       <span className="flex items-center gap-1.5"><span className="h-3 w-1 rounded-full bg-own-agent" /> Agent can do</span>
       <span className="flex items-center gap-1.5"><span className="h-3 w-1 rounded-full bg-own-human" /> You do</span>
       <span className="flex items-center gap-1.5"><span className="h-3 w-1 rounded-full bg-own-provider" /> Waiting on provider</span>
-      <span className="flex items-center gap-1.5"><TriangleAlert className="size-3 text-destructive" strokeWidth={1.75} /> Known blocker</span>
+      <span className="flex items-center gap-1.5"><TriangleAlert className="size-3 text-destructive" /> Known blocker</span>
     </div>
   );
 }

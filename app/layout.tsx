@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import { ThemeProvider } from "@/components/site/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -11,7 +12,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: { default: "OAuth Navigator: know the cost of an OAuth app before you start", template: "%s · OAuth Navigator" },
+  title: { default: "OAuth Navigator", template: "%s · OAuth Navigator" },
   description:
     "How hard is it to register an OAuth app with a provider? Active work vs approval wait, steps, scopes, blockers, and how we know each claim.",
 };
@@ -34,9 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             </a>
             <SiteHeader />
             <main id="main">{children}</main>
-            <footer className="mx-auto max-w-6xl px-4 py-10 text-xs text-subtle-foreground sm:px-6">
-              Guides are research aids, not legal advice. Every claim is labelled with how we know it. Provider policies change: check the dates.
-            </footer>
+            <SiteFooter />
             <Toaster position="bottom-center" />
           </TooltipProvider>
         </ThemeProvider>

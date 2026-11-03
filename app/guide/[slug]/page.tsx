@@ -5,6 +5,7 @@ import { RoadmapLegend } from "@/components/guide/roadmap";
 import { Blockers, Nuances, OwnershipMatrix, Prerequisites, ScopesTable, Section, SourceList, StepList, Unknowns } from "@/components/guide/sections";
 import { SourcesProvider } from "@/components/guide/sources-context";
 import { SummaryHero } from "@/components/guide/summary-hero";
+import { Toc } from "@/components/guide/toc";
 import { EvidenceLegend } from "@/components/home/evidence-legend";
 import { Reveal } from "@/components/site/reveal";
 import { GuideParamsDto } from "@/lib/dto/guide-params.dto";
@@ -48,16 +49,19 @@ export default async function GuidePage({ params }: Props) {
   return (
     <SourcesProvider sources={guide.sources}>
       <div className="relative">
-        <div className="bg-grid pointer-events-none absolute inset-x-0 top-0 h-80 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden />
+        <div className="pointer-events-none absolute inset-x-0 -top-16 h-[480px] overflow-hidden" aria-hidden>
+          <div className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_30%_0%,black,transparent)]" />
+          <div className="absolute -top-24 left-[8%] h-80 w-[640px] max-w-full rounded-full bg-[radial-gradient(closest-side,var(--brand-glow),transparent)] blur-2xl" />
+        </div>
         <div className="relative mx-auto max-w-6xl px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
           <Reveal>
             <SummaryHero guide={guide} />
           </Reveal>
 
-          <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_180px]">
-            <div className="min-w-0 space-y-12">
+          <div className="mt-16 grid grid-cols-1 gap-16 lg:grid-cols-[minmax(0,1fr)_180px]">
+            <div className="min-w-0 space-y-16">
               <Reveal index={1}>
-                <Section id="roadmap" title="Roadmap" kicker={`${guide.steps.length} steps · click a step for details`}>
+                <Section id="roadmap" index={1} title="Roadmap" kicker={`${guide.steps.length} steps · click a step for details`}>
                   <RoadmapLazy guide={guide} />
                   <div className="mt-3">
                     <RoadmapLegend />
@@ -65,44 +69,36 @@ export default async function GuidePage({ params }: Props) {
                 </Section>
               </Reveal>
               <Reveal index={2}>
-                <Section id="prerequisites" title="Before you start">
+                <Section id="prerequisites" index={2} title="Before you start">
                   <Prerequisites guide={guide} />
                 </Section>
               </Reveal>
-              <Section id="steps" title="Steps">
+              <Section id="steps" index={3} title="Steps">
                 <StepList guide={guide} />
               </Section>
-              <Section id="scopes" title="Scopes" kicker="Request the minimum you need">
+              <Section id="scopes" index={4} title="Scopes" kicker="Request the minimum you need">
                 <ScopesTable guide={guide} />
               </Section>
-              <Section id="nuances" title="Nuances">
+              <Section id="nuances" index={5} title="Nuances">
                 <Nuances guide={guide} />
               </Section>
-              <Section id="blockers" title="Blockers" kicker="Symptom → fix">
+              <Section id="blockers" index={6} title="Blockers" kicker="Symptom → fix">
                 <Blockers guide={guide} />
               </Section>
-              <Section id="ownership" title="What an agent can do vs where you take over">
+              <Section id="ownership" index={7} title="What an agent can do vs where you take over">
                 <OwnershipMatrix guide={guide} />
               </Section>
-              <Section id="unknowns" title="What we couldn’t confirm">
+              <Section id="unknowns" index={8} title="What we couldn’t confirm">
                 <Unknowns guide={guide} />
               </Section>
-              <Section id="sources" title="Sources" kicker={`${guide.sources.length} cited`}>
+              <Section id="sources" index={9} title="Sources" kicker={`${guide.sources.length} cited`}>
                 <SourceList guide={guide} />
               </Section>
             </div>
 
             <aside className="hidden lg:block">
-              <nav aria-label="On this page" className="sticky top-20 space-y-6">
-                <ul className="space-y-1 border-l text-sm">
-                  {TOC.map(([id, label]) => (
-                    <li key={id}>
-                      <a href={`#${id}`} className="-ml-px block border-l border-transparent py-1 pl-3 text-muted-foreground hover:border-foreground hover:text-foreground">
-                        {label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+              <nav aria-label="On this page" className="sticky top-24 space-y-8">
+                <Toc items={TOC} />
                 <EvidenceLegend compact />
               </nav>
             </aside>

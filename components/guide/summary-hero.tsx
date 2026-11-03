@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Clock3, Copy, FileDown, Hourglass, Link2, RefreshCw } from "lucide-react";
+import { ArrowsClockwise, Check, Clock, Copy, Export, HourglassMedium, LinkSimple } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -41,9 +41,12 @@ export function SummaryHero({ guide }: { guide: Guide }) {
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <AppLogo name={guide.appName} website={guide.website} size={44} />
+            <span className="relative">
+              <span className="absolute inset-0 scale-150 rounded-full bg-[radial-gradient(closest-side,var(--brand-glow),transparent)] blur-md" aria-hidden />
+              <AppLogo name={guide.appName} website={guide.website} size={52} className="relative rounded-xl" />
+            </span>
             <div className="min-w-0">
-              <h1 id="guide-title" className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">
+              <h1 id="guide-title" className="truncate text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
                 {guide.appName}
               </h1>
               <p className="font-mono text-xs text-subtle-foreground">
@@ -55,7 +58,7 @@ export function SummaryHero({ guide }: { guide: Guide }) {
             <DifficultyMeter difficulty={guide.verdict.difficulty} />
             <EvidenceBadge evidence={guide.verdict.evidence} sourceIds={guide.verdict.sourceIds} />
           </div>
-          <p className="mt-3 max-w-2xl text-lg leading-snug text-balance">{guide.verdict.oneLiner}</p>
+          <p className="mt-4 max-w-2xl text-xl leading-snug tracking-tight text-balance">{guide.verdict.oneLiner}</p>
           <p className="mt-1 text-xs text-subtle-foreground">{DIFFICULTY_META[guide.verdict.difficulty].description}</p>
         </div>
 
@@ -69,10 +72,10 @@ export function SummaryHero({ guide }: { guide: Guide }) {
               setTimeout(() => setCopied(false), 1500);
             }}
           >
-            {copied ? <Check strokeWidth={1.5} /> : <Link2 strokeWidth={1.5} />} Copy link
+            {copied ? <Check /> : <LinkSimple />} Copy link
           </Button>
           <Button variant="outline" size="sm" onClick={() => copy(guideToMarkdown(guide, window.location.origin), "Markdown")}>
-            <FileDown strokeWidth={1.5} /> Copy as Markdown
+            <Export /> Copy as Markdown
           </Button>
           {!isLibrary && (
             <Button
@@ -81,22 +84,22 @@ export function SummaryHero({ guide }: { guide: Guide }) {
               onClick={() => router.push(`/?q=${encodeURIComponent(guide.appName)}&refresh=1#generate`)}
               title="Re-run the research agent (rate-limited)"
             >
-              <RefreshCw strokeWidth={1.5} /> Regenerate
+              <ArrowsClockwise /> Regenerate
             </Button>
           )}
         </div>
       </div>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+      <div className="mt-10 grid gap-3 sm:grid-cols-2">
         <StatTile
-          icon={<Clock3 className="size-4" strokeWidth={1.5} />}
+          icon={<Clock className="size-4" />}
           label="Active work"
           value={formatMinutes(guide.time.activeSetup.minMinutes, guide.time.activeSetup.maxMinutes)}
           hint="Hands-on time: forms, config, code"
           claim={guide.time.activeSetup}
         />
         <StatTile
-          icon={<Hourglass className="size-4" strokeWidth={1.5} />}
+          icon={<HourglassMedium className="size-4" />}
           label="Approval wait"
           value={formatApproval(guide.time.approvalWait)}
           hint={`${APPROVAL_LABEL[guide.time.approvalWait.required]}. ${guide.time.approvalWait.note}`}
@@ -118,7 +121,7 @@ export function SummaryHero({ guide }: { guide: Guide }) {
           </span>
         )}
         <button type="button" className="inline-flex items-center gap-1 underline-offset-2 hover:underline" onClick={() => copy(guide.slug, "Slug")}>
-          <Copy className="size-3" strokeWidth={1.5} />
+          <Copy className="size-3" />
           <span className="font-mono">{guide.slug}</span>
         </button>
       </p>
@@ -128,7 +131,7 @@ export function SummaryHero({ guide }: { guide: Guide }) {
 
 function StatTile(props: { icon: React.ReactNode; label: string; value: string; hint: string; claim: { evidence: Guide["verdict"]["evidence"]; sourceIds: string[] } }) {
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-card sm:p-5">
+    <div className="hairline-gradient inner-highlight rounded-2xl p-5 sm:p-6">
       <div className="flex items-center justify-between gap-2">
         <span className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
           {props.icon}
@@ -136,7 +139,7 @@ function StatTile(props: { icon: React.ReactNode; label: string; value: string; 
         </span>
         <EvidenceBadge evidence={props.claim.evidence} sourceIds={props.claim.sourceIds} />
       </div>
-      <p className="mt-3 text-3xl font-semibold tracking-tight">
+      <p className="mt-4 text-4xl font-semibold tracking-[-0.03em]">
         <CountUp text={props.value} />
       </p>
       <p className="mt-1 text-xs text-muted-foreground">{props.hint}</p>

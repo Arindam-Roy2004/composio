@@ -1,155 +1,235 @@
 "use client";
 
-import { Check, ChevronRight, CircleDashed, FileText, Lightbulb, Radar, Search, ShieldCheck } from "lucide-react";
+import {
+  ArrowSquareOut,
+  CheckCircle,
+  Compass,
+  FileMagnifyingGlass,
+  FloppyDisk,
+  Lightbulb,
+  MagnifyingGlass,
+  Notebook,
+  Binoculars,
+  ShieldCheck,
+  Sparkle,
+  type Icon,
+} from "@phosphor-icons/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useState } from "react";
+import { ChainOfThought, ChainOfThoughtContent, ChainOfThoughtHeader, ChainOfThoughtSearchResult, ChainOfThoughtSearchResults } from "@/components/ai-elements/chain-of-thought";
+import { Shimmer } from "@/components/ai-elements/shimmer";
+import { AppLogo } from "@/components/site/app-logo";
 import type { GenerateState, StageLog } from "@/lib/client/useGenerate";
 import { STAGES, type Stage } from "@/lib/schema/events.schema";
 import { cn } from "@/lib/utils";
 
-const LABEL: Record<Stage, { title: string; hint: string }> = {
-  resolve: { title: "Resolve", hint: "Normalise the query, check the cache" },
-  identify: { title: "Identify", hint: "Find the official developer domain" },
-  research: { title: "Research", hint: "Read docs, note findings with sources" },
-  probe: { title: "Probe", hint: "Observe the console page without signing in" },
-  synthesise: { title: "Synthesise", hint: "Turn notes into a structured guide" },
-  verify: { title: "Verify", hint: "Deterministic evidence checks" },
-  save: { title: "Save", hint: "Store at a shareable link" },
+const STAGE: Record<Stage, { icon: Icon; title: string; active: string; done: string }> = {
+  resolve: { icon: Compass, title: "Resolve", active: "Normalising the query and checking the cache", done: "Query resolved" },
+  identify: { icon: MagnifyingGlass, title: "Identify", active: "Looking for the official developer domain", done: "Found the developer domain" },
+  research: { icon: FileMagnifyingGlass, title: "Research", active: "Reading official docs and noting findings", done: "Research complete" },
+  probe: { icon: Binoculars, title: "Probe", active: "Observing the app console without signing in", done: "Console observed" },
+  synthesise: { icon: Sparkle, title: "Synthesise", active: "Turning notes into a structured guide", done: "Guide drafted" },
+  verify: { icon: ShieldCheck, title: "Verify", active: "Running deterministic evidence checks", done: "Evidence verified" },
+  save: { icon: FloppyDisk, title: "Save", active: "Saving to a shareable link", done: "Saved" },
 };
 
+const ease = [0.22, 1, 0.36, 1] as const;
+
+/** Live tool-calling view: each stage is a step; each tool call streams in beneath it. */
 export function AgentTimeline({ state }: { state: GenerateState }) {
   const reduce = useReducedMotion();
-  const [open, setOpen] = useState<Partial<Record<Stage, boolean>>>({});
+  const doneCount = STAGES.filter((s) => state.stages[s] === "done").length;
+  const running = state.status === "running" || state.status === "recovering";
 
   return (
-    <ol className="relative space-y-1" aria-label="Agent progress" aria-live="polite">
-      {STAGES.map((stage, i) => {
-        const status = state.stages[stage];
-        const logs = state.logs[stage];
-        const expanded = open[stage] ?? (status === "active" || (stage === "research" && logs.length > 0));
-        return (
-          <li key={stage} className="relative">
-            {i < STAGES.length - 1 && <span className={cn("absolute top-7 left-[13px] h-[calc(100%-12px)] w-px", status === "done" ? "bg-brand/40" : "bg-border")} aria-hidden />}
-            <button
-              type="button"
-              onClick={() => setOpen((o) => ({ ...o, [stage]: !expanded }))}
-              disabled={!logs.length}
-              aria-expanded={logs.length ? expanded : undefined}
-              className={cn(
-                "relative flex w-full items-center gap-3 overflow-hidden rounded-lg px-1 py-1.5 text-left",
-                status === "active" && "bg-muted/60",
-              )}
-            >
-              {status === "active" && !reduce && <span className="shimmer pointer-events-none absolute inset-0" aria-hidden />}
-              <StageIcon status={status} />
-              <span className="min-w-0 flex-1">
-                <span className={cn("block text-sm font-medium", status === "pending" && "text-subtle-foreground")}>{LABEL[stage].title}</span>
-                <span className="block truncate text-xs text-subtle-foreground">{LABEL[stage].hint}</span>
-              </span>
-              {logs.length > 0 && (
-                <span className="flex items-center gap-1 font-mono text-[11px] text-subtle-foreground">
-                  {logs.length}
-                  <ChevronRight className={cn("size-3.5 transition-transform", expanded && "rotate-90")} strokeWidth={1.5} />
-                </span>
-              )}
-            </button>
-            <AnimatePresence initial={false}>
-              {expanded && logs.length > 0 && (
-                <motion.ul
-                  initial={reduce ? false : { height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={reduce ? undefined : { height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="ml-10 space-y-1 overflow-hidden pb-2"
-                >
-                  {logs.slice(-12).map((log, j) => (
-                    <LogLine key={j} log={log} />
-                  ))}
-                </motion.ul>
-              )}
-            </AnimatePresence>
-          </li>
-        );
-      })}
-    </ol>
+    <ChainOfThought defaultOpen>
+      <ChainOfThoughtHeader className="text-xs">
+        {running ? `Step ${Math.min(doneCount + 1, STAGES.length)} of ${STAGES.length}` : `${doneCount} of ${STAGES.length} steps`}
+      </ChainOfThoughtHeader>
+      <ChainOfThoughtContent>
+        <ol className="space-y-0.5" aria-label="Agent progress" aria-live="polite">
+          {STAGES.map((stage, i) => {
+            const status = state.stages[stage];
+            const meta = STAGE[stage];
+            const logs = state.logs[stage];
+            const visible = status !== "pending" || (running && STAGES.slice(0, i).every((s) => state.stages[s] === "done"));
+            return (
+              <motion.li
+                key={stage}
+                layout={!reduce}
+                initial={false}
+                animate={{ opacity: status === "pending" ? 0.42 : 1 }}
+                transition={{ duration: 0.25, ease }}
+                className="relative flex gap-3 pb-3"
+              >
+                {i < STAGES.length - 1 && (
+                  <span className="absolute top-8 bottom-0 left-[13px] w-px overflow-hidden bg-border" aria-hidden>
+                    <motion.span
+                      className="block w-full bg-brand"
+                      initial={false}
+                      animate={{ height: status === "done" ? "100%" : "0%" }}
+                      transition={{ duration: reduce ? 0 : 0.45, ease }}
+                    />
+                  </span>
+                )}
+                <Marker status={status} icon={meta.icon} />
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <div className="flex items-baseline gap-2">
+                    <span className={cn("text-sm font-medium", status === "pending" && "text-subtle-foreground")}>{meta.title}</span>
+                    {logs.length > 0 && <span className="font-mono text-[11px] text-subtle-foreground tabular-nums">{logs.length}</span>}
+                  </div>
+                  {status === "active" ? (
+                    <Shimmer as="span" className="text-xs" duration={1.6}>
+                      {meta.active}
+                    </Shimmer>
+                  ) : (
+                    <span className="block text-xs text-subtle-foreground">{status === "done" ? meta.done : visible ? meta.active : ""}</span>
+                  )}
+                  <AnimatePresence initial={false}>
+                    {logs.length > 0 && (
+                      <motion.div
+                        initial={reduce ? false : { opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        transition={{ duration: 0.25, ease }}
+                        className="overflow-hidden"
+                      >
+                        <StageLogs logs={logs} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.li>
+            );
+          })}
+        </ol>
+      </ChainOfThoughtContent>
+    </ChainOfThought>
   );
 }
 
-function StageIcon({ status }: { status: "pending" | "active" | "done" }) {
+function Marker({ status, icon: StageIcon }: { status: "pending" | "active" | "done"; icon: Icon }) {
   const reduce = useReducedMotion();
   return (
-    <span
-      className={cn(
-        "relative z-10 flex size-[26px] shrink-0 items-center justify-center rounded-full border bg-background",
-        status === "done" && "border-brand/50 bg-brand/15 text-brand",
-        status === "active" && "border-brand text-brand",
+    <span className="relative z-10 flex size-[27px] shrink-0 items-center justify-center">
+      {status === "active" && !reduce && (
+        <motion.span
+          className="absolute inset-0 rounded-full bg-brand/25"
+          animate={{ scale: [1, 1.55], opacity: [0.6, 0] }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
+          aria-hidden
+        />
       )}
-    >
-      {status === "done" ? (
-        <motion.span initial={reduce ? false : { scale: 0.4 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 22 }}>
-          <Check className="size-3.5" strokeWidth={2} />
-        </motion.span>
-      ) : status === "active" ? (
-        <CircleDashed className="size-3.5 motion-safe:animate-spin" strokeWidth={1.75} />
-      ) : (
-        <span className="size-1.5 rounded-full bg-border-strong" />
-      )}
+      <span
+        className={cn(
+          "relative flex size-[27px] items-center justify-center rounded-full border bg-background transition-colors duration-300",
+          status === "active" && "border-brand/60 text-brand",
+          status === "done" && "border-brand/40 bg-brand text-brand-foreground",
+          status === "pending" && "text-subtle-foreground",
+        )}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          {status === "done" ? (
+            <motion.span key="done" initial={reduce ? false : { scale: 0.3, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 520, damping: 20 }}>
+              <CheckCircle size={15} weight="fill" />
+            </motion.span>
+          ) : (
+            <motion.span key="icon" exit={reduce ? undefined : { scale: 0.3, opacity: 0 }} transition={{ duration: 0.12 }}>
+              <StageIcon size={14} weight={status === "active" ? "duotone" : "regular"} />
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </span>
     </span>
   );
 }
 
-function LogLine({ log }: { log: StageLog }) {
-  const base = "flex items-start gap-2 text-xs text-muted-foreground";
+function StageLogs({ logs }: { logs: StageLog[] }) {
+  const reduce = useReducedMotion();
+  const reads = logs.filter((l): l is Extract<StageLog, { kind: "read" }> => l.kind === "read");
+  const rest = logs.filter((l) => l.kind !== "read").slice(-8);
+  return (
+    <div className="mt-2 space-y-2">
+      <ul className="space-y-1.5">
+        <AnimatePresence initial={false}>
+          {rest.map((log, j) => (
+            <motion.li
+              key={`${log.kind}-${j}-${"query" in log ? log.query : "claim" in log ? log.claim : "url" in log ? log.url : j}`}
+              initial={reduce ? false : { opacity: 0, x: -6, filter: "blur(3px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.28, ease }}
+            >
+              <ToolCall log={log} />
+            </motion.li>
+          ))}
+        </AnimatePresence>
+      </ul>
+      {reads.length > 0 && (
+        <ChainOfThoughtSearchResults>
+          {reads.map((r) => (
+            <motion.span key={r.url} initial={reduce ? false : { opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 420, damping: 28 }}>
+              <ChainOfThoughtSearchResult className="max-w-[260px] gap-1.5 rounded-md border bg-muted/50 py-0.5 pr-2 pl-1" title={r.title}>
+                <AppLogo name={r.domain} website={r.url} size={16} className="rounded-[4px] border-0" />
+                <span className="truncate">{r.title}</span>
+              </ChainOfThoughtSearchResult>
+            </motion.span>
+          ))}
+        </ChainOfThoughtSearchResults>
+      )}
+    </div>
+  );
+}
+
+function ToolCall({ log }: { log: StageLog }) {
   switch (log.kind) {
     case "search":
       return (
-        <li className={base}>
-          <Search className="mt-0.5 size-3 shrink-0" strokeWidth={1.75} />
-          <span className="min-w-0">
-            <span className="font-mono text-foreground">“{log.query}”</span> · {log.results} results
-          </span>
-        </li>
-      );
-    case "read":
-      return (
-        <li className={base}>
-          <FileText className="mt-0.5 size-3 shrink-0" strokeWidth={1.75} />
-          <span className="min-w-0 truncate">
-            {log.title} <span className="font-mono text-subtle-foreground">{log.domain}</span>
-          </span>
-        </li>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="rounded bg-muted px-1.5 py-px font-mono text-[10.5px] text-muted-foreground">webSearch</span>
+          <span className="min-w-0 truncate text-foreground">{log.query}</span>
+          <span className="ml-auto shrink-0 font-mono text-[10.5px] text-subtle-foreground">{log.results} results</span>
+        </div>
       );
     case "finding":
       return (
-        <li className={base}>
-          <Lightbulb className="mt-0.5 size-3 shrink-0 text-ev-documented" strokeWidth={1.75} />
-          <span className="min-w-0 line-clamp-2">{log.claim}</span>
-        </li>
+        <div className="flex gap-2 text-xs">
+          <Lightbulb size={13} weight="duotone" className="mt-px shrink-0 text-ev-documented" />
+          <span className="min-w-0 text-muted-foreground">
+            <span className="line-clamp-2">{log.claim}</span>
+          </span>
+        </div>
       );
     case "probe":
       return (
-        <li className={base}>
-          <Radar className="mt-0.5 size-3 shrink-0 text-ev-probed" strokeWidth={1.75} />
-          <span className="min-w-0 truncate">
-            <span className="font-mono">{log.url.replace(/^https:\/\//, "")}</span> · {log.requiresLogin ? "login wall" : "reachable"}
+        <div className="flex items-center gap-2 text-xs">
+          <span className="rounded bg-muted px-1.5 py-px font-mono text-[10.5px] text-muted-foreground">probeConsole</span>
+          <span className="min-w-0 truncate font-mono text-[11px]">{log.url.replace(/^https:\/\//, "")}</span>
+          <span className={cn("ml-auto shrink-0 rounded px-1.5 py-px text-[10.5px]", log.requiresLogin ? "bg-ev-uncertain/15 text-ev-uncertain" : "bg-ev-tested/15 text-ev-tested")}>
+            {log.requiresLogin ? "login wall" : "reachable"}
           </span>
-        </li>
+        </div>
       );
     case "verification":
       return (
-        <li className={base}>
-          <ShieldCheck className="mt-0.5 size-3 shrink-0 text-ev-uncertain" strokeWidth={1.75} />
-          <span className="min-w-0">
-            {log.downgraded === 0 ? "All claims passed verification" : `${log.downgraded} claim${log.downgraded > 1 ? "s" : ""} downgraded`}
-            {log.notes.length > 0 && (
-              <span className="mt-1 block space-y-0.5 text-subtle-foreground">
-                {log.notes.slice(0, 4).map((n) => (
-                  <span key={n} className="block truncate">· {n}</span>
-                ))}
-              </span>
-            )}
-          </span>
-        </li>
+        <div className="text-xs">
+          <div className="flex items-center gap-2">
+            <Notebook size={13} weight="duotone" className="text-ev-uncertain" />
+            <span>{log.downgraded === 0 ? "Every claim passed" : `${log.downgraded} claim${log.downgraded > 1 ? "s" : ""} downgraded to a weaker label`}</span>
+          </div>
+          {log.notes.length > 0 && (
+            <ul className="mt-1 space-y-0.5 pl-5 text-subtle-foreground">
+              {log.notes.slice(0, 4).map((n) => (
+                <li key={n} className="truncate">
+                  {n}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      );
+    case "read":
+      return (
+        <a href={log.url} target="_blank" rel="noopener noreferrer nofollow" className="flex items-center gap-1 text-xs hover:underline">
+          {log.title} <ArrowSquareOut size={11} />
+        </a>
       );
   }
 }

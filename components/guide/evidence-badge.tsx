@@ -1,13 +1,13 @@
 "use client";
 
-import { CircleCheck, CircleHelp, FileText, Radar, Users } from "lucide-react";
+import { Binoculars, BookOpenText, SealCheck, SealQuestion, UsersThree } from "@phosphor-icons/react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { useSources } from "@/components/guide/sources-context";
 import { domainOf, EVIDENCE_META } from "@/lib/format";
 import type { EvidenceLevel } from "@/lib/schema/guide.schema";
 import { cn } from "@/lib/utils";
 
-const ICON = { tested: CircleCheck, probed: Radar, documented: FileText, community: Users, uncertain: CircleHelp } as const;
+const ICON = { tested: SealCheck, probed: Binoculars, documented: BookOpenText, community: UsersThree, uncertain: SealQuestion } as const;
 
 const TONE: Record<EvidenceLevel, string> = {
   tested: "text-ev-tested border-ev-tested/35 bg-ev-tested/10",
@@ -20,8 +20,8 @@ const TONE: Record<EvidenceLevel, string> = {
 export function EvidencePill({ evidence, className, children }: { evidence: EvidenceLevel; className?: string; children?: React.ReactNode }) {
   const Icon = ICON[evidence];
   return (
-    <span className={cn("inline-flex h-5 shrink-0 items-center gap-1 rounded-full border px-1.5 text-[11px] font-medium", TONE[evidence], className)}>
-      <Icon className="size-3" strokeWidth={1.75} aria-hidden />
+    <span className={cn("inline-flex h-[22px] shrink-0 items-center gap-1 rounded-md border px-1.5 text-[11px] font-medium", TONE[evidence], className)}>
+      <Icon size={12} weight="duotone" aria-hidden />
       {EVIDENCE_META[evidence].label}
       {children}
     </span>
@@ -38,7 +38,7 @@ export function EvidenceBadge({ evidence, sourceIds, className }: { evidence: Ev
       <HoverCardTrigger asChild>
         <a
           href={firstId ? `#source-${firstId}` : "#unknowns"}
-          className={cn("rounded-full", className)}
+          className={cn("rounded-md transition-opacity hover:opacity-80", className)}
           aria-label={`${EVIDENCE_META[evidence].label}${cited.length ? `, ${cited.length} source${cited.length > 1 ? "s" : ""}` : ""}`}
         >
           <EvidencePill evidence={evidence}>

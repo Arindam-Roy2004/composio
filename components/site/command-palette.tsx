@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BookCheck, Search, Sparkles } from "lucide-react";
+import { ArrowRight, MagnifyingGlass, Sparkle, SealCheck } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [lists, setLists] = useState<Lists | null>(null);
+  const [failed, setFailed] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -33,9 +34,12 @@ export function CommandPalette() {
   useEffect(() => {
     if (!open || lists) return;
     fetch("/api/guides")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => j?.success && setLists(j.data))
-      .catch(() => {});
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((j) => {
+        setFailed(false);
+        if (j?.success) setLists(j.data);
+      })
+      .catch(() => setFailed(true));
   }, [open, lists]);
 
   const go = useCallback(
@@ -54,24 +58,24 @@ export function CommandPalette() {
         variant="outline"
         size="sm"
         onClick={() => setOpen(true)}
-        className="hidden h-8 gap-2 rounded-full border-border bg-transparent pr-1.5 pl-3 text-muted-foreground sm:inline-flex"
+        className="hidden h-8 gap-2 rounded-lg border-border bg-muted/40 pr-1.5 pl-2.5 text-muted-foreground hover:bg-muted sm:inline-flex"
       >
-        <Search className="size-3.5" strokeWidth={1.5} />
-        <span className="text-xs">Jump to a guide</span>
+        <MagnifyingGlass size={14} />
+        <span className="text-xs">Search guides</span>
         <kbd className="rounded border bg-muted px-1.5 font-mono text-[10px]">⌘K</kbd>
       </Button>
-      <Button variant="ghost" size="icon" className="size-8 sm:hidden" aria-label="Search guides" onClick={() => setOpen(true)}>
-        <Search className="size-4" strokeWidth={1.5} />
+      <Button variant="ghost" size="icon" className="size-8 rounded-lg sm:hidden" aria-label="Search guides" onClick={() => setOpen(true)}>
+        <MagnifyingGlass size={17} />
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen} title="Search guides" description="Jump to a guide or generate a new one">
         <CommandInput placeholder="Search guides or type an app name…" value={query} onValueChange={setQuery} />
         <CommandList>
-          <CommandEmpty>{lists ? "No guide yet." : "Loading…"}</CommandEmpty>
+          <CommandEmpty>{failed ? "Couldn’t load guides. Check your connection." : lists ? "No matching guide. Type an app name to research it." : "Loading guides…"}</CommandEmpty>
           {all.length > 0 && (
             <CommandGroup heading="Guides">
               {all.map((g) => (
                 <CommandItem key={g.slug} value={`${g.appName} ${g.slug}`} onSelect={() => go(`/guide/${g.slug}`)}>
-                  {g.generatedBy === "library" ? <BookCheck strokeWidth={1.5} /> : <Sparkles strokeWidth={1.5} />}
+                  {g.generatedBy === "library" ? <SealCheck weight="duotone" className="text-ev-tested" /> : <Sparkle weight="duotone" />}
                   <span>{g.appName}</span>
                   <span className="ml-auto text-xs text-muted-foreground">{DIFFICULTY_META[g.difficulty].label}</span>
                 </CommandItem>
@@ -81,7 +85,7 @@ export function CommandPalette() {
           {query.trim().length >= 2 && (
             <CommandGroup heading="Generate">
               <CommandItem value={`generate ${query}`} onSelect={() => go(`/?q=${encodeURIComponent(query.trim())}#generate`)}>
-                <ArrowRight strokeWidth={1.5} />
+                <ArrowRight />
                 <span>
                   Research <span className="font-medium">{query.trim()}</span>
                 </span>

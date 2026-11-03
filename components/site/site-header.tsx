@@ -1,53 +1,70 @@
 "use client";
 
+import { Compass } from "@phosphor-icons/react";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { CommandPalette } from "@/components/site/command-palette";
 import { ThemeToggle } from "@/components/site/theme-toggle";
+import { cn } from "@/lib/utils";
 
+const NAV = [
+  { href: "/#library", label: "Library" },
+  { href: "/#how", label: "How it works" },
+  { href: "/#evidence", label: "Evidence" },
+];
+
+/** Floating glass bar: transparent at the top, condenses into a blurred pill on scroll. */
 export function SiteHeader() {
+  const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const reduce = useReducedMotion();
+  const pathname = usePathname();
+  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 12));
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b border-transparent transition-[background-color,border-color,backdrop-filter] duration-200",
-        scrolled && "border-border bg-background/70 backdrop-blur-xl",
-      )}
-    >
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 rounded-md text-sm font-medium tracking-tight">
+    <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4">
+      <motion.div
+        initial={false}
+        animate={{ maxWidth: scrolled ? 860 : 1152 }}
+        transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 32 }}
+        className={cn(
+          "mx-auto flex h-12 items-center justify-between gap-3 rounded-2xl border px-2.5 pl-3.5 transition-[background-color,border-color,box-shadow] duration-300",
+          scrolled ? "surface-glass border-border shadow-card" : "border-transparent",
+        )}
+      >
+        <Link href="/" className="flex items-center gap-2 rounded-lg text-[15px] font-semibold tracking-tight" aria-label="OAuth Navigator home">
           <LogoMark />
           <span>OAuth Navigator</span>
         </Link>
-        <nav className="flex items-center gap-1.5">
-          <Link href="/#library" className="hidden rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground sm:block">
-            Library
-          </Link>
-          <Link href="/#how" className="hidden rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground sm:block">
-            How it works
-          </Link>
+        <nav className="flex items-center gap-1" aria-label="Main">
+          <div className="hidden items-center md:flex">
+            {NAV.map((n) => (
+              <Link
+                key={n.href}
+                href={n.href}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground",
+                  pathname === "/" && "hover:bg-muted/60",
+                )}
+              >
+                {n.label}
+              </Link>
+            ))}
+          </div>
           <CommandPalette />
           <ThemeToggle />
         </nav>
-      </div>
+      </motion.div>
     </header>
   );
 }
 
 function LogoMark() {
   return (
-    <svg viewBox="0 0 24 24" className="size-5" aria-hidden fill="none">
-      <rect x="1.5" y="1.5" width="21" height="21" rx="6" className="stroke-border-strong" strokeWidth="1" />
-      <path d="M7 12h4m2 0h4M12 7v4m0 2v4" className="stroke-brand" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="12" cy="12" r="1.6" className="fill-foreground" />
-    </svg>
+    <span className="relative flex size-7 items-center justify-center rounded-lg bg-foreground text-background shadow-card">
+      <Compass size={17} weight="duotone" aria-hidden />
+    </span>
   );
 }

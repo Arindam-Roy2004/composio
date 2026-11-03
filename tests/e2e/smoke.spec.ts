@@ -33,9 +33,9 @@ test("live run renders streamed agent events (mocked stream)", async ({ page }) 
   await page.route("**/api/generate", (route) => route.fulfill({ status: 200, headers: { "content-type": "text/event-stream" }, body }));
   await page.goto("/");
   await page.getByLabel("App name or website").fill("Acme");
-  await page.getByRole("button", { name: /Generate guide/ }).click();
+  await page.getByRole("button", { name: "Generate guide" }).click();
   const timeline = page.getByRole("list", { name: "Agent progress" });
   await expect(timeline).toContainText("Research");
-  await expect(page.getByRole("list", { name: "Pages read" })).toContainText("docs.acme.test");
+  await expect(timeline).toContainText("OAuth apps"); // source chip for the page read
   await expect(timeline).toContainText("Apps are created in the developer console");
 });
