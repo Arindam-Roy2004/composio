@@ -42,6 +42,27 @@ export function CommandPalette() {
       .catch(() => setFailed(true));
   }, [open, lists]);
 
+  // With a query, search every guide on the server (the default list only holds the library + recent).
+  const [hits, setHits] = useState<GuideSummary[] | null>(null);
+  useEffect(() => {
+    const term = query.trim();
+    if (!open || term.length < 2) {
+      setHits(null);
+      return;
+    }
+    const ctrl = new AbortController();
+    const t = setTimeout(() => {
+      fetch(`/api/guides/search?q=${encodeURIComponent(term)}&limit=8&sort=az`, { signal: ctrl.signal })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+        .then((j) => j?.success && setHits(j.data.items as GuideSummary[]))
+        .catch(() => {});
+    }, 200);
+    return () => {
+      clearTimeout(t);
+      ctrl.abort();
+    };
+  }, [open, query]);
+
   const go = useCallback(
     (href: string) => {
       setOpen(false);
@@ -50,7 +71,7 @@ export function CommandPalette() {
     [router],
   );
 
-  const all = [...(lists?.library ?? []), ...(lists?.generated ?? [])];
+  const all = hits ?? [...(lists?.library ?? []), ...(lists?.generated ?? [])];
 
   return (
     <>
