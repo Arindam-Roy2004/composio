@@ -9,8 +9,8 @@ import { getRedis } from "@/lib/storage/redis";
 export type LimitKey = "generate" | "read";
 
 const LIMITS: Record<LimitKey, { tokens: number; window: `${number} ${"s" | "m" | "h"}` }> = {
-  // 5 real runs per IP per hour in production; looser locally so development isn't blocked.
-  generate: { tokens: process.env.NODE_ENV === "production" ? 5 : 50, window: "1 h" },
+  // 20 real runs per IP per hour in production; looser locally so development isn't blocked.
+  generate: { tokens: process.env.NODE_ENV === "production" ? 20 : 50, window: "1 h" },
   read: { tokens: 60, window: "1 m" },
 };
 

@@ -71,5 +71,5 @@ Deploy to Vercel and set the variables above. A live run takes roughly 60–90 s
 - **Setup times are mostly uncertain.** Providers don't publish them.
 - **Approval timelines** (Slack Marketplace, LinkedIn partner products, Google security assessment) are estimates or unknown.
 - **Generated guides are only as good as findable public docs** and can be wrong; the verifier checks citations, not truth.
-- **Rate limits:** 5 fresh runs per IP per hour in production (50 in dev). Cached guides don't count.
+- **Rate limits:** 20 fresh runs per IP per hour in production (50 in dev). Cached guides don't count.
 - Five library guides, not 100.

@@ -30,7 +30,7 @@ export const POST = route<GenerateGuideInput>({ body: GenerateGuideDto, rateLimi
   }
 
   requireFeature("agent"); // 503 with a clear message when keys are missing
-  await enforceRateLimit("generate", ipHash); // only real runs count against 5/hour
+  await enforceRateLimit("generate", ipHash); // only real runs count against the hourly limit
   const release = await acquireRunLock(ipHash);
   if (!release) throw new RateLimitError("A guide is already being generated from your connection. Wait for it to finish.", 30);
 
