@@ -26,12 +26,13 @@
     },
     "approvalWait": {
       "required": "for_public_use",
-      "minDays": null,
-      "maxDays": null,
-      "note": "Unlisted public distribution needs no review. Listing in the Slack Marketplace (recommended for commercial apps) is reviewed; Slack publishes no timeline.",
+      "minDays": 14,
+      "maxDays": 84,
+      "note": "Only if listing on the Slack Marketplace. Slack's review guide gives up to 10 business days for preliminary feedback plus up to 10 weeks for functional review; unlisted public distribution needs no review.",
       "evidence": "documented",
       "sourceIds": [
-        "s2"
+        "s2",
+        "s4"
       ]
     }
   },
@@ -182,6 +183,24 @@
       ]
     },
     {
+      "id": "marketplace-timeline",
+      "title": "Marketplace review: 10 business days, then up to 10 weeks",
+      "body": "Slack's review guide says preliminary feedback takes up to 10 business days, then functional review takes up to 10 weeks for new submissions and 6 weeks for updates. Unlisted distribution is not reviewed.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s4"
+      ]
+    },
+    {
+      "id": "local-https",
+      "title": "Local development needs an HTTPS redirect",
+      "body": "Slack requires HTTPS redirect URLs and its docs show plain http://localhost as invalid. Use a TLS tunnel such as ngrok or an HTTPS dev domain; no localhost exception is documented.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
       "id": "unapproved-scope",
       "title": "Published apps can't add unreviewed scopes",
       "body": "Requesting scopes that are still under review or were never submitted returns unapproved_scope.",
@@ -243,9 +262,8 @@
     ]
   },
   "unknowns": [
-    "Active setup time (20–60 min) is our estimate. TODO(human): time a real setup.",
-    "Slack does not publish a Marketplace review timeline in the pages we read.",
-    "Whether localhost redirect URLs are allowed isn't stated; HTTPS is required."
+    "Active setup time (20–60 min) is an estimate; Slack publishes no setup time and this was not timed hands-on.",
+    "Marketplace review times are upper bounds and vary with queue volume; Slack says the submission page shows the current estimate."
   ],
   "sources": [
     {
@@ -268,6 +286,13 @@
       "title": "Rate limit changes for non-Marketplace apps",
       "kind": "official_docs",
       "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s4",
+      "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+      "title": "Slack Marketplace review process",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-04T00:00:00.000Z"
     }
   ]
 }

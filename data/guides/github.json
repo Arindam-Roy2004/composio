@@ -96,12 +96,12 @@
       "id": "register-and-secret",
       "order": 4,
       "title": "Register and generate a client secret",
-      "body": "Click Register application to get the client ID. Generate a client secret on the app page and store it in your secret manager; it is only needed server-side for the token exchange.",
+      "body": "Click Register application to get the client ID. Generate a client secret from the app's settings and store it in your secret manager; GitHub's best-practices guide says to generate a new secret if the old one is compromised. The secret is only needed server-side for the token exchange.",
       "owner": "human",
       "phase": "create",
       "estMinutes": null,
-      "evidence": "uncertain",
-      "sourceIds": []
+      "evidence": "documented",
+      "sourceIds": ["s5"]
     },
     {
       "id": "implement-flow",
@@ -171,6 +171,13 @@
       "sourceIds": ["s2"]
     },
     {
+      "id": "code-lifetime",
+      "title": "Authorization codes expire after 10 minutes",
+      "body": "The temporary code returned to your callback must be exchanged promptly. GitHub invalidates it after 10 minutes, so a delayed exchange means the user must start authorization again.",
+      "evidence": "documented",
+      "sourceIds": ["s2"]
+    },
+    {
       "id": "scopes-no-escalation",
       "title": "Scopes never exceed the user's own permissions",
       "body": "A scope only limits what the token can do. It grants nothing beyond what the authorizing user already has, and users can edit the scopes they grant.",
@@ -231,13 +238,13 @@
     ]
   },
   "unknowns": [
-    "Active setup time (5–15 min) is our estimate, not a documented figure. TODO(human): time a real registration and mark it tested.",
-    "Exact client-secret generation UI was not captured from docs in this guide. TODO(human): confirm during the test registration."
+    "Active setup time (5–15 min) is an estimate based on the five form fields; GitHub publishes no setup time and this was not timed hands-on."
   ],
   "sources": [
     { "id": "s1", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app", "title": "Creating an OAuth app", "kind": "official_docs", "fetchedAt": "2026-11-03T00:00:00.000Z" },
     { "id": "s2", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps", "title": "Authorizing OAuth apps", "kind": "official_docs", "fetchedAt": "2026-11-03T00:00:00.000Z" },
     { "id": "s3", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps", "title": "Scopes for OAuth apps", "kind": "official_docs", "fetchedAt": "2026-11-03T00:00:00.000Z" },
-    { "id": "s4", "url": "https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/about-oauth-app-access-restrictions", "title": "About OAuth app access restrictions", "kind": "policy", "fetchedAt": "2026-11-03T00:00:00.000Z" }
+    { "id": "s4", "url": "https://docs.github.com/en/organizations/managing-oauth-access-to-your-organizations-data/about-oauth-app-access-restrictions", "title": "About OAuth app access restrictions", "kind": "policy", "fetchedAt": "2026-11-03T00:00:00.000Z" },
+    { "id": "s5", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/best-practices-for-creating-an-oauth-app", "title": "Best practices for creating an OAuth app", "kind": "official_docs", "fetchedAt": "2026-11-04T00:00:00.000Z" }
   ]
 }

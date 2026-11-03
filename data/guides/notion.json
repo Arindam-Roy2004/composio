@@ -258,9 +258,9 @@
     ]
   },
   "unknowns": [
-    "Active setup time (10–30 min) is our estimate, not documented. TODO(human): time a real setup.",
-    "Whether creating a public connection requires a workspace owner role is not stated in the docs we read.",
-    "Access token lifetime is not stated on the authorization page we read."
+    "Active setup time (10–30 min) is an estimate; Notion publishes no setup time and this was not timed hands-on.",
+    "Notion requires a workspace owner for internal connections; its public-connection guide does not state whether a public connection needs one.",
+    "Access-token lifetime is not published; Notion returns a refresh token and rotates it on refresh."
   ],
   "sources": [
     {

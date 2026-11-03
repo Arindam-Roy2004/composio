@@ -143,14 +143,15 @@
       "id": "test-mode",
       "order": 5,
       "title": "Develop in Testing status",
-      "body": "Apps in development don't need verification, but in Testing status refresh tokens expire after 7 days unless you only ask for name, email and profile.",
+      "body": "Apps in development don't need verification. Testing status allows up to 100 test users listed on the consent screen; their authorizations expire after 7 days unless you only ask for name, email and profile.",
       "owner": "human",
       "phase": "configure",
       "estMinutes": null,
       "evidence": "documented",
       "sourceIds": [
         "s5",
-        "s1"
+        "s1",
+        "s7"
       ]
     },
     {
@@ -269,11 +270,12 @@
     },
     {
       "id": "testing-refresh",
-      "title": "Testing status: refresh tokens die after 7 days",
-      "body": "Expect users to re-consent weekly while the app is in Testing.",
+      "title": "Testing status: 100 test users, 7-day authorizations",
+      "body": "Testing status allows up to 100 test users. Authorizations by a test user expire after 7 days unless the app asks only for name, email and profile.",
       "evidence": "documented",
       "sourceIds": [
-        "s1"
+        "s1",
+        "s7"
       ]
     },
     {
@@ -369,9 +371,8 @@
     ]
   },
   "unknowns": [
-    "Active setup time (30–120 min) is our estimate. TODO(human): time a Testing-mode setup.",
-    "Security assessment duration and cost depend on the assessor; Google publishes neither.",
-    "Test-user limits for Testing status were not covered by the pages we read."
+    "Active setup time (30–120 min) is an estimate; Google publishes verification timelines, not setup time, and this was not timed hands-on.",
+    "Security assessment duration and cost depend on the assessor; Google publishes neither."
   ],
   "sources": [
     {
@@ -415,6 +416,13 @@
       "title": "Choose Gmail API scopes",
       "kind": "official_docs",
       "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s7",
+      "url": "https://support.google.com/cloud/answer/15549945",
+      "title": "Manage App Audience",
+      "kind": "policy",
+      "fetchedAt": "2026-11-04T00:00:00.000Z"
     }
   ]
 }

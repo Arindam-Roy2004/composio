@@ -47,10 +47,12 @@
     {
       "id": "linkedin-page",
       "label": "A LinkedIn Page for your company",
-      "detail": "We believe app creation asks you to associate a LinkedIn Page, but the pages we read don't say so. TODO(human): confirm during app creation.",
+      "detail": "LinkedIn Help says API products available to individual developers must have a default Page associated, and you must select it to proceed with app creation. Apps are permanently tied to that Page.",
       "kind": "business",
-      "evidence": "uncertain",
-      "sourceIds": []
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
     },
     {
       "id": "https-callback",
@@ -68,13 +70,14 @@
       "id": "create-app",
       "order": 1,
       "title": "Create an app in the Developer Portal",
-      "body": "Create a new application or select an existing one.",
+      "body": "Create a new application or select an existing one, then select the default LinkedIn Page when prompted.",
       "owner": "human",
       "phase": "create",
       "estMinutes": null,
       "evidence": "documented",
       "sourceIds": [
-        "s2"
+        "s2",
+        "s3"
       ],
       "url": "https://www.linkedin.com/developers/apps"
     },
@@ -265,9 +268,8 @@
     ]
   },
   "unknowns": [
-    "Active setup time (15–45 min) is our estimate. TODO(human): time a real setup.",
-    "Partner approval timelines and acceptance criteria are not published.",
-    "Whether a LinkedIn Page is required to create an app is unconfirmed. TODO(human)."
+    "Active setup time (15–45 min) is an estimate; LinkedIn publishes no setup time and this was not timed hands-on.",
+    "Partner approval timelines and acceptance criteria are not published."
   ],
   "sources": [
     {
@@ -283,6 +285,13 @@
       "title": "LinkedIn 3-legged OAuth flow",
       "kind": "official_docs",
       "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s3",
+      "url": "https://www.linkedin.com/help/linkedin/answer/a548360",
+      "title": "Associate an app with a LinkedIn Page",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-04T00:00:00.000Z"
     }
   ]
 }

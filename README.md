@@ -69,10 +69,10 @@ Deploy to Vercel and set the variables above. A live run takes roughly 60–90 s
 
 ## Limitations
 
-- **Nothing is hands-on tested yet.** I re-checked 19 claims against the live provider docs (16 confirmed, 1 corrected, 1 gap, 1 unverifiable) and compared the live agent with the library on all five apps (it agreed on difficulty for 3 of 5, and its research corrected one library claim), but I haven't completed a real provider setup myself.
-- **Library guides** were researched from official docs only. Library guides were researched from official docs and cite them; no claim is marked `tested` yet. `VERIFICATION.md` lists what was checked and what remains open.
+- **Nothing is hands-on tested yet.** The coding assistant ran two docs passes: 19 claims in the first (16 confirmed, 1 corrected, 1 gap, 1 unverifiable), then a second pass that closed 7 open questions with official sources and left 5 open. It also compared the live agent with the library on all five apps (it agreed on difficulty for 3 of 5, and its research corrected one library claim), but I haven't completed a real provider setup myself. `VERIFICATION.md` records both passes.
+- **Library guides** were researched from official docs and cite them; no claim is marked `tested` yet. `VERIFICATION.md` lists what was checked and what remains open.
 - **Setup times are mostly uncertain.** Providers don't publish them.
-- **Approval timelines** (Slack Marketplace, LinkedIn partner products, Google security assessment) are estimates or unknown.
+- **Approval timelines:** Slack publishes its Marketplace review timeline (up to 10 business days preliminary, then up to 10 weeks functional); LinkedIn partner approval and Google security-assessment duration/cost are not published.
 - **Generated guides are only as good as findable public docs** and can be wrong; the verifier checks citations, not truth.
 - **Rate limits:** 20 fresh runs per IP per hour in production (50 in dev). Cached guides don't count.
 - Five library guides, not 100.
