@@ -139,7 +139,7 @@ export function Roadmap({ guide }: { guide: Guide }) {
   const height = rows ? rows * NODE_H + (rows - 1) * GAP_Y + 48 : 184;
 
   return (
-    <div ref={ref} className="overflow-hidden rounded-xl border bg-surface" style={{ height }} aria-label="Setup roadmap" role="figure">
+    <div ref={ref} className="overflow-hidden rounded-xl bg-background ring-1 ring-border" style={{ height }} aria-label="Setup roadmap" role="figure">
       {cols > 0 && (
         <ReactFlow
           key={cols}

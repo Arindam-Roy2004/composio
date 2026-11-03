@@ -38,7 +38,7 @@ async function run() {
           }, section);
         }
         const x = await page.evaluate(() => {
-          const main = document.querySelector("main .max-w-6xl") as HTMLElement | null;
+          const main = document.querySelector("main article") as HTMLElement | null;
           return main ? Math.max(0, main.getBoundingClientRect().left) : 0;
         });
         n++;

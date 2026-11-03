@@ -8,7 +8,9 @@ test("home → library card → guide → roadmap renders", async ({ page }) => 
   await expect(page.getByRole("heading", { level: 1, name: "GitHub" })).toBeVisible();
   const roadmap = page.getByRole("figure", { name: "Setup roadmap" });
   await expect(roadmap.locator(".react-flow__node")).toHaveCount(7);
-  await expect(page.locator("#sources li")).not.toHaveCount(0);
+  await expect(page.locator("#sources a[id^=source-]")).not.toHaveCount(0);
+  await page.getByRole("tab", { name: "Markdown" }).click();
+  await expect(page.locator("pre")).toContainText("# GitHub: OAuth app setup");
 });
 
 test("unknown guide returns 404 with a generate CTA", async ({ page }) => {

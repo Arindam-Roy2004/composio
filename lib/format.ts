@@ -72,8 +72,13 @@ export function domainOf(url: string): string {
   }
 }
 
+/** Favicon via Google's service, keyed on the registrable domain (developers.notion.com → notion.com). */
 export function faviconUrl(url: string, size = 64): string {
-  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domainOf(url))}&sz=${size}`;
+  const host = domainOf(url).toLowerCase();
+  const labels = host.split(".");
+  const twoPart = labels.length > 2 && labels[labels.length - 1]!.length === 2 && ["co", "com", "org", "net", "ac", "gov"].includes(labels[labels.length - 2]!);
+  const reg = labels.slice(twoPart ? -3 : -2).join(".");
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(reg || host)}&sz=${size}`;
 }
 
 export function formatDate(iso: string): string {

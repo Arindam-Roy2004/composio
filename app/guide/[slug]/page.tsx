@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { RoadmapLazy } from "@/components/guide/roadmap-lazy";
+import { AtAGlance } from "@/components/guide/at-a-glance";
+import { CopyPageButton } from "@/components/guide/guide-actions";
+import { GuideSidebar, GuideSwitcherMobile } from "@/components/guide/guide-sidebar";
+import { GuideBreadcrumb } from "@/components/guide/guide-breadcrumb";
+import { GuideView } from "@/components/guide/guide-view";
+import { Pager } from "@/components/guide/pager";
 import { RoadmapLegend } from "@/components/guide/roadmap";
+import { RoadmapLazy } from "@/components/guide/roadmap-lazy";
 import { Blockers, Nuances, OwnershipMatrix, Prerequisites, ScopesTable, Section, SourceList, StepList, Unknowns } from "@/components/guide/sections";
 import { SourcesProvider } from "@/components/guide/sources-context";
-import { SummaryHero } from "@/components/guide/summary-hero";
 import { Toc } from "@/components/guide/toc";
 import { EvidenceLegend } from "@/components/home/evidence-legend";
+import { AppLogo } from "@/components/site/app-logo";
 import { Reveal } from "@/components/site/reveal";
 import { GuideParamsDto } from "@/lib/dto/guide-params.dto";
-import { DIFFICULTY_META, formatApproval, formatMinutes } from "@/lib/format";
-import { getGuide } from "@/lib/storage/guides";
+import { DIFFICULTY_META, domainOf, formatApproval, formatMinutes } from "@/lib/format";
+import { guideToMarkdown } from "@/lib/guide/markdown";
+import { getGuide, listGuides } from "@/lib/storage/guides";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const TOC = [
+  ["overview", "Overview"],
   ["roadmap", "Roadmap"],
   ["prerequisites", "Before you start"],
   ["steps", "Steps"],
@@ -42,68 +50,103 @@ const TOC = [
   ["sources", "Sources"],
 ] as const;
 
+const OAUTH_LABEL = {
+  oauth2: "OAuth 2.0",
+  oauth2_pkce: "OAuth 2.0 + PKCE",
+  oauth1: "OAuth 1.0a",
+  api_key_only: "API keys only",
+  none: "No public API auth",
+  unknown: "Auth model unknown",
+} as const;
+
 export default async function GuidePage({ params }: Props) {
   const guide = await load(params);
   if (!guide) notFound();
+  const lists = await listGuides().catch(() => ({ library: [], generated: [] }));
+  const order = lists.library;
+  const idx = order.findIndex((g) => g.slug === guide.slug);
+  const prev = idx > 0 ? order[idx - 1] : undefined;
+  const next = idx >= 0 ? order[idx + 1] : order[0];
 
   return (
     <SourcesProvider sources={guide.sources}>
-      <div className="relative">
-        <div className="pointer-events-none absolute inset-x-0 -top-16 h-[480px] overflow-hidden" aria-hidden>
-          <div className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_30%_0%,black,transparent)]" />
-          <div className="absolute -top-24 left-[8%] h-80 w-[640px] max-w-full rounded-full bg-[radial-gradient(closest-side,var(--brand-glow),transparent)] blur-2xl" />
-        </div>
-        <div className="relative mx-auto max-w-6xl px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-10 px-4 pt-6 pb-20 sm:px-6 lg:grid-cols-[248px_minmax(0,1fr)] xl:grid-cols-[248px_minmax(0,1fr)_200px]">
+        <aside className="hidden lg:block">
+          <div className="sticky top-20">
+            <GuideSidebar library={lists.library} generated={lists.generated} />
+          </div>
+        </aside>
+
+        <article className="min-w-0 max-w-[860px]">
+          <GuideSwitcherMobile library={lists.library} current={guide.slug} />
           <Reveal>
-            <SummaryHero guide={guide} />
+            <GuideBreadcrumb appName={guide.appName} />
+
+            <header className="mt-6">
+              <div className="flex items-center gap-3.5">
+                <AppLogo name={guide.appName} website={guide.website} size={48} className="rounded-xl shadow-card" />
+                <div className="min-w-0">
+                  <h1 className="truncate text-[32px] leading-tight font-semibold tracking-[-0.035em] sm:text-[38px]">{guide.appName}</h1>
+                  <p className="truncate font-mono text-xs text-subtle-foreground">
+                    {domainOf(guide.website)} · {guide.category} · {OAUTH_LABEL[guide.oauthSupport]}
+                  </p>
+                </div>
+              </div>
+              <p className="mt-5 max-w-2xl text-[17px] leading-relaxed text-muted-foreground text-balance">{guide.verdict.oneLiner}</p>
+            </header>
           </Reveal>
 
-          <div className="mt-16 grid grid-cols-1 gap-16 lg:grid-cols-[minmax(0,1fr)_180px]">
-            <div className="min-w-0 space-y-16">
-              <Reveal index={1}>
-                <Section id="roadmap" index={1} title="Roadmap" kicker={`${guide.steps.length} steps · click a step for details`}>
+          <GuideView markdown={guideToMarkdown(guide)} actions={<CopyPageButton key="copy-page" guide={guide} />}>
+            <div key="guide-body" className="mt-6 space-y-16">
+              <section key="overview" id="overview" className="scroll-mt-24" aria-label="Overview">
+                <AtAGlance guide={guide} />
+              </section>
+              <Section key="roadmap" id="roadmap" title="Roadmap" description="Each step, coloured by who does it. Click a step to jump to its details.">
+                <div className="rounded-2xl bg-muted/40 p-1.5 ring-1 ring-border">
                   <RoadmapLazy guide={guide} />
-                  <div className="mt-3">
+                  <div className="px-2 pt-2.5 pb-1">
                     <RoadmapLegend />
                   </div>
-                </Section>
-              </Reveal>
-              <Reveal index={2}>
-                <Section id="prerequisites" index={2} title="Before you start">
-                  <Prerequisites guide={guide} />
-                </Section>
-              </Reveal>
-              <Section id="steps" index={3} title="Steps">
+                </div>
+              </Section>
+              <Section key="prerequisites" id="prerequisites" title="Before you start" description="What you need in hand before you open the console.">
+                <Prerequisites guide={guide} />
+              </Section>
+              <Section key="steps" id="steps" title="Steps" description="The full path from registration to production.">
                 <StepList guide={guide} />
               </Section>
-              <Section id="scopes" index={4} title="Scopes" kicker="Request the minimum you need">
+              <Section key="scopes" id="scopes" title="Scopes" description="Which permissions exist and which of them trigger a review.">
                 <ScopesTable guide={guide} />
               </Section>
-              <Section id="nuances" index={5} title="Nuances">
+              <Section key="nuances" id="nuances" title="Nuances" description="Rules that are easy to miss until they break something.">
                 <Nuances guide={guide} />
               </Section>
-              <Section id="blockers" index={6} title="Blockers" kicker="Symptom → fix">
+              <Section key="blockers" id="blockers" title="Blockers" description="Symptoms you might hit, and how to get past them.">
                 <Blockers guide={guide} />
               </Section>
-              <Section id="ownership" index={7} title="What an agent can do vs where you take over">
+              <Section key="ownership" id="ownership" title="Agent vs you" description="What an AI agent can do for you, and where you have to take over.">
                 <OwnershipMatrix guide={guide} />
               </Section>
-              <Section id="unknowns" index={8} title="What we couldn’t confirm">
+              <Section key="unknowns" id="unknowns" title="What we couldn’t confirm" description="Stated openly rather than guessed.">
                 <Unknowns guide={guide} />
               </Section>
-              <Section id="sources" index={9} title="Sources" kicker={`${guide.sources.length} cited`}>
+              <Section key="sources" id="sources" title="Sources">
                 <SourceList guide={guide} />
               </Section>
+              <Pager key="pager" prev={prev} next={next && next.slug !== guide.slug ? next : undefined} />
             </div>
+          </GuideView>
+        </article>
 
-            <aside className="hidden lg:block">
-              <nav aria-label="On this page" className="sticky top-24 space-y-8">
-                <Toc items={TOC} />
-                <EvidenceLegend compact />
-              </nav>
-            </aside>
+        <aside className="hidden xl:block">
+          <div className="sticky top-20 space-y-8">
+            <div>
+              <p className="mb-2 text-xs font-medium text-muted-foreground">On this page</p>
+              <Toc items={TOC} />
+            </div>
+            <EvidenceLegend compact />
           </div>
-        </div>
+        </aside>
       </div>
     </SourcesProvider>
   );
