@@ -369,7 +369,7 @@
     ]
   },
   "unknowns": [
-    "Active setup time (30–120 min) is our estimate. TODO(human): time a Testing-mode setup.",
+    "Active setup time (30–120 min) is our estimate. Not yet checked hands-on.",
     "Security assessment duration and cost depend on the assessor; Google publishes neither.",
     "Test-user limits for Testing status were not covered by the pages we read."
   ],

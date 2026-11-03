@@ -231,8 +231,8 @@
     ]
   },
   "unknowns": [
-    "Active setup time (5–15 min) is our estimate, not a documented figure. TODO(human): time a real registration and mark it tested.",
-    "Exact client-secret generation UI was not captured from docs in this guide. TODO(human): confirm during the test registration."
+    "Active setup time (5–15 min) is our estimate, not a documented figure. Not yet checked hands-on.",
+    "Exact client-secret generation UI was not captured from docs in this guide. Not yet checked hands-on."
   ],
   "sources": [
     { "id": "s1", "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app", "title": "Creating an OAuth app", "kind": "official_docs", "fetchedAt": "2026-11-03T00:00:00.000Z" },
