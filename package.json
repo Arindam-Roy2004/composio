@@ -11,8 +11,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
-    "validate:library": "tsx scripts/validate-library.ts",
-    "capture:hero": "tsx scripts/capture-hero-shots.ts"
+    "validate:library": "tsx scripts/validate-library.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.96",

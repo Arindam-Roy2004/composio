@@ -9,6 +9,7 @@ import { Reveal } from "@/components/site/reveal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { log } from "@/lib/log";
 import { getGuide, listGuides } from "@/lib/storage/guides";
+import type { Guide } from "@/lib/schema/guide.schema";
 
 export const dynamic = "force-dynamic";
 
@@ -29,8 +30,11 @@ export default async function Home() {
     log.error("listGuides failed", { error: err instanceof Error ? err.message : String(err) });
     return null;
   });
-  const [gmail, github] = await Promise.all([getGuide("gmail"), getGuide("github")]);
-  const guides = [...(lists?.library ?? []), ...(lists?.generated ?? [])];
+  const slugs = [...(lists?.library ?? []), ...(lists?.generated ?? [])].map((g) => g.slug).slice(0, 12);
+  const guides = (await Promise.all(slugs.map((s) => getGuide(s)))).filter((g): g is Guide => g !== null);
+  const gmail = guides.find((g) => g.slug === "gmail");
+  const github = guides.find((g) => g.slug === "github");
+  const deck = ["gmail", "slack", "github"].map((s) => guides.find((g) => g.slug === s)).filter((g): g is Guide => Boolean(g));
 
   return (
     <>
@@ -83,7 +87,7 @@ export default async function Home() {
         </section>
 
         <Reveal inView>
-          <Cta />
+          <Cta deck={deck} />
         </Reveal>
       </div>
     </>

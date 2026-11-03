@@ -37,6 +37,12 @@ export function formatApproval(a: { required: Guide["time"]["approvalWait"]["req
   return days ?? "Timeline unpublished";
 }
 
+/** Compact variant for small stat tiles. */
+export function formatApprovalShort(a: Parameters<typeof formatApproval>[0]): string {
+  const full = formatApproval(a);
+  return full === "Timeline unpublished" ? "Unpublished" : full;
+}
+
 export function summaryApproval(s: GuideSummary): string {
   if (s.approval === "no") return "no review";
   const d = formatDays(s.approvalDays.minDays, s.approvalDays.maxDays);
