@@ -27,11 +27,12 @@
       "required": "no",
       "minDays": 0,
       "maxDays": 0,
-      "note": "You can create and use a public connection without listing it. Listing on the Notion Marketplace is optional and requires a Notion security review; no timeline is published.",
+      "note": "You can create and use a public connection without listing it. Listing on the Notion Marketplace is optional. Notion reviews every listing and says to expect an email within 5-10 business days; listings can be rejected (for example brand or quality issues) and can be resubmitted after changes.",
       "evidence": "documented",
       "sourceIds": [
         "s1",
-        "s3"
+        "s3",
+        "s4"
       ]
     }
   },
@@ -282,6 +283,13 @@
       "title": "Public integrations overview",
       "kind": "official_docs",
       "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s4",
+      "url": "https://developers.notion.com/guides/connections-and-tokens/public-integrations/marketplace-listing",
+      "title": "Marketplace listing",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-04T00:00:00.000Z"
     }
   ]
 }

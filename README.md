@@ -69,7 +69,7 @@ Deploy to Vercel and set the variables above. A live run takes roughly 60–90 s
 
 ## Limitations
 
-- **Nothing is hands-on tested yet.** I re-checked 19 claims against the live provider docs (16 confirmed, 1 corrected, 1 gap, 1 unverifiable), but I haven't completed a real provider setup myself.
+- **Nothing is hands-on tested yet.** I re-checked 19 claims against the live provider docs (16 confirmed, 1 corrected, 1 gap, 1 unverifiable) and compared the live agent with the library on all five apps (it agreed on difficulty for 3 of 5, and its research corrected one library claim), but I haven't completed a real provider setup myself.
 - **Library guides** were researched from official docs only. Library guides were researched from official docs and cite them; no claim is marked `tested` yet. `VERIFICATION.md` lists what was checked and what remains open.
 - **Setup times are mostly uncertain.** Providers don't publish them.
 - **Approval timelines** (Slack Marketplace, LinkedIn partner products, Google security assessment) are estimates or unknown.

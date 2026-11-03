@@ -74,7 +74,7 @@ After the library was written, I re-fetched the provider pages and checked a sam
 | LinkedIn | Members accept all scopes or none | Confirmed |
 | LinkedIn | A LinkedIn Page is required to create an app | **Still unverifiable.** Neither page says so. It stays `uncertain` |
 
-**Totals:** 19 claims checked. 16 confirmed as written, 1 corrected (Slack), 1 gap found (GitHub code lifetime), 1 unverifiable (LinkedIn Page).
+**Totals:** 19 claims checked. 16 confirmed as written, 1 corrected (Slack), 1 gap found (GitHub code lifetime), 1 unverifiable (LinkedIn Page). A second correction (Notion's review timeline) came from the agent comparison below.
 
 **What I learned:** the numbers held up well. The errors were in *scope and wording* (who a limit applies to, which page backs which claim), not in the numbers. I also noticed LinkedIn's own flow page shows an example with the deprecated `liteprofile` scope next to a table that lists `profile` as the open permission, so the docs disagree with themselves. Providers' docs are not always consistent, which is why the guides label evidence and don't just assert.
 
@@ -170,17 +170,39 @@ After the library was written, I re-fetched the provider pages and checked a sam
   - The active setup time.
 - TODO(human): create an app. Record whether a Page is required and the minutes taken. If you apply for any partner product, record the date and the outcome.
 
-## Live agent runs
+## Agent vs library comparison (2026-11-04)
 
-Library slugs always return the reviewed library guide, so the agent can't be run against those apps and compared directly. Instead I ran it on apps outside the library:
+Library slugs always return the reviewed guide, so I asked the agent about each app with a different query (for example "Notion public integration" instead of "notion") to force a fresh run, then compared the result with the library guide. All runs used the production pipeline on my machine.
 
-| App | Date | Time | Notes |
-|---|---|---|---|
-| Zoom | 2026-11-03 | 62 s | 14 findings, console probed, 25 of 28 claims documented |
-| Calendly | 2026-11-04 | about 80 s | 3 searches, 5 page reads, 1 console probe; 26 claims (24 documented, 2 uncertain); 0 verifier downgrades |
+| App (query) | Run | Claims (documented / community / probed / uncertain) | Verifier downgrades | Difficulty: agent vs library |
+|---|---|---|---|---|
+| GitHub ("GitHub OAuth apps") | 77 s, 10 tool calls (first attempt failed) | 39 (5 / 33 / 0 / 1) | 33 | easy vs easy: same |
+| Notion ("Notion public integration") | 106 s, 9 calls | 47 (43 / 0 / 2 / 2) | 0 | **gated vs easy: differs** |
+| Slack ("Slack API app") | 78 s, 9 calls | 38 (35 / 0 / 1 / 2) | 0 | moderate vs moderate: same |
+| Gmail ("Gmail OAuth Google") | first attempt failed; retry succeeded | 45 (39 / 0 / 3 / 3) | 0 | hard vs hard: same |
+| LinkedIn ("LinkedIn API") | 92 s, 8 calls | 23 (17 / 0 / 3 / 3) | 0 | **moderate vs gated: differs** |
 
-The verifier found nothing to downgrade on the Calendly run. That means every claim had a citation, not that every claim is true. I have not checked the Calendly or Zoom claims against the docs by hand.
+Earlier runs on apps with no library guide: Zoom (62 s, 25 of 28 claims documented) and Calendly (about 80 s, 24 documented and 2 uncertain, 0 downgrades). Those have no reviewed guide to compare against, and I have not hand-checked their claims.
 
-TODO(human), still open:
+**Overall:** the agent agreed with the library on difficulty for 3 of 5 apps. 2 of 7 attempts failed outright ("the model could not produce a valid guide"), and both succeeded on retry. A failure shows the user an error and asks them to try again.
+
+### What the comparison showed
+
+**The agent caught a real error in my library guide (Notion).** The library said Notion's Marketplace review has "no timeline published". The agent found a page I had not read, and I confirmed it against the official Marketplace listing page: Notion says to expect an email within 5-10 business days, and listings can be rejected. I corrected `notion.json` and added that page as a source.
+
+**Where the agent was worse than the library:**
+- **Slack:** it never mentions the 1 request/min limit on message history for unlisted commercial apps. That is the single most useful nuance in the library guide. It also extracted no permission scopes, and left the approval wait as "unknown".
+- **Notion:** its summary says public OAuth needs no review, yet it still rates the app "gated" because it folded the optional Marketplace review into the difficulty. The library rating (easy, with the Marketplace review as an optional step) is more defensible.
+- **LinkedIn:** it rates the app "moderate", but LinkedIn's own page says most permissions need explicit approval, so "gated" fits better. It also missed the 60-day access token and the 30-minute authorization code.
+- **Gmail:** it estimates the approval wait at 0-3 days (brand verification only), while Google's FAQ gives 6 weeks for restricted scopes. It also ties the security assessment to sensitive scopes, but Google ties it to restricted ones.
+
+**Where the agent was better:** it read console pages and recorded what it saw (the `probed` claims), and it found documentation I had not, as with Notion above.
+
+**A verifier weakness (GitHub):** the agent read GitHub's docs from `raw.githubusercontent.com` (the markdown source in GitHub's own docs repo). The verifier does not recognise that host as official, so it downgraded 33 claims to "community". The claims themselves were drawn from real GitHub documentation, so this was over-cautious. The failure is safe (it under-claims) but it makes the guide look weaker than it is.
+
+### Still open
+
+TODO(human):
 1. Do one real setup, for example a GitHub OAuth App, and record the date, the minutes taken and any form fields that differ from the guide. Then mark the confirmed claims `tested`.
-2. Hand-check a sample of an agent-generated guide (Calendly) the way I checked the library above.
+2. Hand-check a sample of the claims in an agent-only guide (Calendly or Zoom).
+3. The two failed runs and the GitHub downgrade pattern point to a follow-up: recognising official docs mirrors and giving the agent a retry.
