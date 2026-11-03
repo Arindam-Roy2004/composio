@@ -81,32 +81,3 @@ export function createSseResponse(
   headers.set("x-accel-buffering", "no");
   return new Response(stream, { headers });
 }
-
-/** Parses an SSE byte stream into AgentEvents (used by the browser client and tests). */
-export async function* parseSse(body: ReadableStream<Uint8Array>): AsyncGenerator<AgentEvent> {
-  const reader = body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  for (;;) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    let idx: number;
-    while ((idx = buffer.indexOf("\n\n")) !== -1) {
-      const frame = buffer.slice(0, idx);
-      buffer = buffer.slice(idx + 2);
-      const data = frame
-        .split("\n")
-        .filter((l) => l.startsWith("data:"))
-        .map((l) => l.slice(5).trimStart())
-        .join("\n");
-      if (!data) continue;
-      try {
-        const parsed = AgentEventSchema.safeParse(JSON.parse(data));
-        if (parsed.success) yield parsed.data;
-      } catch {
-        /* skip malformed frame */
-      }
-    }
-  }
-}

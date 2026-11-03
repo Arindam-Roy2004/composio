@@ -43,7 +43,7 @@ export const POST = route<GenerateGuideInput>({ body: GenerateGuideDto, rateLimi
     async (w) => {
       try {
         w.send({ type: "stage", stage: "resolve", status: "start" });
-        w.send({ type: "stage", stage: "resolve", status: "done" });
+        w.send({ type: "stage", stage: "resolve", status: "done", slug: query.slug });
         const result = await runAgent({ query, emit: (e) => w.send(e), deps, brain: aiSdkBrain(model, id) });
 
         w.send({ type: "stage", stage: "save", status: "start" });

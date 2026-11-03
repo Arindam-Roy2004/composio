@@ -6,7 +6,8 @@ export type Stage = (typeof STAGES)[number];
 const short = (max: number) => z.string().max(max);
 
 export const AgentEventSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("stage"), stage: z.enum(STAGES), status: z.enum(["start", "done"]) }),
+  // slug is sent on resolve so a client whose stream drops can poll GET /api/guides/:slug.
+  z.object({ type: z.literal("stage"), stage: z.enum(STAGES), status: z.enum(["start", "done"]), slug: z.string().max(64).optional() }),
   z.object({ type: z.literal("search"), query: short(200), results: z.number().int().min(0) }),
   z.object({ type: z.literal("read"), url: z.url(), title: short(200), domain: short(253) }),
   z.object({ type: z.literal("finding"), claim: short(300), sourceUrl: z.url() }),

@@ -1,103 +1,57 @@
-import Image from "next/image";
+import { Suspense } from "react";
+import { GenerateBox } from "@/components/generate/generate-box";
+import { HowItWorks } from "@/components/home/how-it-works";
+import { LibraryGrid } from "@/components/home/library-grid";
+import { Reveal } from "@/components/site/reveal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { listGuides } from "@/lib/storage/guides";
+import { log } from "@/lib/log";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const lists = await listGuides().catch((err) => {
+    log.error("listGuides failed", { error: err instanceof Error ? err.message : String(err) });
+    return null;
+  });
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="relative">
+      <div className="bg-grid pointer-events-none absolute inset-x-0 top-0 h-[560px] [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_70%)]" aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-[420px] max-w-3xl bg-[radial-gradient(closest-side,var(--brand-glow),transparent)] opacity-60" aria-hidden />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+        <section className="mx-auto max-w-3xl pt-16 pb-14 text-center sm:pt-24">
+          <Reveal>
+            <p className="mx-auto inline-flex items-center gap-2 rounded-full border bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+              <span className="size-1.5 rounded-full bg-ev-tested" aria-hidden />
+              Every claim labelled: tested, probed, documented, community or uncertain
+            </p>
+          </Reveal>
+          <Reveal index={1}>
+            <h1 className="mt-6 text-display font-semibold text-balance">Know what you’re signing up for before you register an OAuth app</h1>
+          </Reveal>
+          <Reveal index={2}>
+            <p className="mx-auto mt-5 max-w-xl text-base text-balance text-muted-foreground sm:text-lg">
+              Some providers take ten minutes, others take six weeks of review. See the active work, the approval wait, the steps and the blockers, with sources, before you start.
+            </p>
+          </Reveal>
+          <Reveal index={3} className="mt-8">
+            <Suspense fallback={<Skeleton className="h-[106px] w-full rounded-2xl" />}>
+              <GenerateBox />
+            </Suspense>
+          </Reveal>
+        </section>
+
+        <div className="space-y-16 pb-8">
+          {lists ? (
+            <LibraryGrid library={lists.library} generated={lists.generated} />
+          ) : (
+            <p className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">The guide list is unavailable right now. Library guides are still reachable from ⌘K.</p>
+          )}
+          <HowItWorks />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }
