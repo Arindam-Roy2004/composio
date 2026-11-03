@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "slug": "notion",
+  "appName": "Notion",
+  "website": "https://www.notion.com",
+  "category": "Productivity",
+  "generatedAt": "2026-11-03T00:00:00.000Z",
+  "generatedBy": "library",
+  "oauthSupport": "oauth2",
+  "verdict": {
+    "difficulty": "easy",
+    "oneLiner": "Create a public connection in the developer portal and get OAuth credentials straight away. A security review only applies if you list it on the Marketplace.",
+    "evidence": "documented",
+    "sourceIds": [
+      "s1",
+      "s3"
+    ]
+  },
+  "time": {
+    "activeSetup": {
+      "minMinutes": 10,
+      "maxMinutes": 30,
+      "evidence": "uncertain",
+      "sourceIds": []
+    },
+    "approvalWait": {
+      "required": "no",
+      "minDays": 0,
+      "maxDays": 0,
+      "note": "You can create and use a public connection without listing it. Listing on the Notion Marketplace is optional and requires a Notion security review; no timeline is published.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1",
+        "s3"
+      ]
+    }
+  },
+  "prerequisites": [
+    {
+      "id": "notion-workspace",
+      "label": "A Notion workspace to develop in",
+      "detail": "Creating a connection asks for a development workspace. Notion's docs say internal connections require a workspace owner; they don't say whether public connections do.",
+      "kind": "account",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3",
+        "s1"
+      ]
+    },
+    {
+      "id": "redirect-uris",
+      "label": "Your OAuth redirect URI(s)",
+      "detail": "Redirect URIs are configured under the OAuth configuration section of the connection.",
+      "kind": "technical",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1",
+        "s3"
+      ]
+    },
+    {
+      "id": "installation-scope",
+      "label": "A decision on installation scope",
+      "detail": "Choose 'Any workspace' for a public connection. Installation scope is set once at creation and can't be changed afterwards.",
+      "kind": "technical",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "open-portal",
+      "order": 1,
+      "title": "Open the developer portal and create a connection",
+      "body": "Go to the developer portal, select Connections in the Build section, then Create new connection.",
+      "owner": "human",
+      "phase": "create",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ],
+      "url": "https://app.notion.com/developers/connections"
+    },
+    {
+      "id": "set-scope",
+      "order": 2,
+      "title": "Pick 'Any workspace' as the installation scope",
+      "body": "This makes it a public connection that users in any workspace can authorize via OAuth. It can't be changed later; choosing specific workspaces means creating a new connection to list on the Marketplace.",
+      "owner": "human",
+      "phase": "create",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s3",
+        "s2"
+      ]
+    },
+    {
+      "id": "configure-oauth",
+      "order": 3,
+      "title": "Add redirect URIs and capabilities",
+      "body": "Set the redirect URI(s) under OAuth configuration and choose capabilities such as read, update and insert content. Then copy the OAuth client ID and secret from the Configuration tab.",
+      "owner": "human",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1",
+        "s3"
+      ],
+      "agentCanHelp": "Suggests the minimum capabilities for your use case."
+    },
+    {
+      "id": "implement-oauth",
+      "order": 4,
+      "title": "Implement the authorization flow",
+      "body": "Send users to https://api.notion.com/v1/oauth/authorize and exchange the code at https://api.notion.com/v1/oauth/token. Store the token pair from each authorization.",
+      "owner": "agent",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ],
+      "agentCanHelp": "Writes the redirect, code exchange and token storage."
+    },
+    {
+      "id": "handle-refresh",
+      "order": 5,
+      "title": "Handle refresh tokens",
+      "body": "Refreshing generates a new access token and a new refresh token, so persist both every time you refresh.",
+      "owner": "agent",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ],
+      "agentCanHelp": "Implements refresh with atomic token-pair storage."
+    },
+    {
+      "id": "marketplace",
+      "order": 6,
+      "title": "Optional: list on the Notion Marketplace",
+      "body": "Listing details are managed in the Listings section. Public connections must pass a Notion security review before they are listed.",
+      "owner": "provider",
+      "phase": "launch",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s3",
+        "s1"
+      ]
+    }
+  ],
+  "scopes": [
+    {
+      "name": "Read content",
+      "tier": "basic",
+      "triggersReview": false,
+      "note": "Capability chosen on the connection, not an OAuth scope string.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "name": "Update content",
+      "tier": "basic",
+      "triggersReview": false,
+      "note": "Capability chosen on the connection.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "name": "Insert content",
+      "tier": "basic",
+      "triggersReview": false,
+      "note": "Capability chosen on the connection.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    }
+  ],
+  "nuances": [
+    {
+      "id": "page-picker",
+      "title": "Users choose which pages your app can see",
+      "body": "During authorization users select pages and databases in a page picker. It only shows pages they have full access to, and sharing a parent page shares its children.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "id": "per-user-grant",
+      "title": "Each user authorizes separately",
+      "body": "Only the authorizing user can share pages with the connection. One user's grant isn't shared with the rest of the workspace.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1",
+        "s3"
+      ]
+    },
+    {
+      "id": "scope-fixed",
+      "title": "Installation scope is permanent",
+      "body": "Pick it carefully. Changing it means creating a new connection and new credentials.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "id": "missing-pages",
+      "title": "API calls can't find a page",
+      "symptom": "Requests for a page or database return not found even though the user can see it in Notion.",
+      "fix": "The user didn't share that page in the page picker. Ask them to re-authorize and select it, or share a parent page.",
+      "severity": "medium",
+      "stepId": "implement-oauth",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "id": "wrong-scope",
+      "title": "Can't list on the Marketplace",
+      "symptom": "The connection was created for specific workspaces.",
+      "fix": "Create a new connection with 'Any workspace' installation scope.",
+      "severity": "medium",
+      "stepId": "set-scope",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    }
+  ],
+  "ownership": {
+    "agentCan": [
+      "Write the OAuth redirect and code exchange",
+      "Implement refresh-token rotation",
+      "Pick minimal capabilities"
+    ],
+    "humanMust": [
+      "Create the connection in the developer portal",
+      "Choose the installation scope",
+      "Submit for Marketplace review, if listing"
+    ]
+  },
+  "unknowns": [
+    "Active setup time (10–30 min) is our estimate, not documented. TODO(human): time a real setup.",
+    "Whether creating a public connection requires a workspace owner role is not stated in the docs we read.",
+    "Access token lifetime is not stated on the authorization page we read."
+  ],
+  "sources": [
+    {
+      "id": "s1",
+      "url": "https://developers.notion.com/docs/authorization",
+      "title": "Authorization",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s2",
+      "url": "https://developers.notion.com/docs/getting-started",
+      "title": "Getting started",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s3",
+      "url": "https://developers.notion.com/guides/connections-and-tokens/public-integrations/overview",
+      "title": "Public integrations overview",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    }
+  ]
+}

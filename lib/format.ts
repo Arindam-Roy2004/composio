@@ -1,21 +1,25 @@
 import type { EvidenceLevel, Guide, GuideSummary } from "@/lib/schema/guide.schema";
 
+const hours = (m: number) => `${+(m / 60).toFixed(1)} h`;
+
 export function formatMinutes(min: number, max: number): string {
   if (max <= 0) return "Unknown";
-  const f = (m: number) => (m >= 60 ? `${+(m / 60).toFixed(1)} h` : `${m} min`);
-  if (min === max) return f(max);
-  if (max >= 60 && min >= 60) return `${+(min / 60).toFixed(1)}–${+(max / 60).toFixed(1)} h`;
-  return `${min}–${f(max)}`;
+  if (min === max || min <= 0) return max >= 60 ? hours(max) : `${max} min`;
+  if (max < 60) return `${min}–${max} min`;
+  if (min >= 60) return `${+(min / 60).toFixed(1)}–${hours(max)}`;
+  return `${min} min–${hours(max)}`;
 }
 
 function formatDays(min: number | null, max: number | null): string | null {
   if (min === null && max === null) return null;
   const lo = min ?? max!;
   const hi = max ?? min!;
-  const unit = (d: number) => (d >= 14 ? `${Math.round(d / 7)} wk` : `${d} day${d === 1 ? "" : "s"}`);
   if (hi === 0) return "None";
+  const unit = (d: number) => (d >= 14 ? `${Math.round(d / 7)} wk` : `${d} day${d === 1 ? "" : "s"}`);
   if (lo === hi) return unit(hi);
-  return hi >= 14 ? `${Math.round(lo / 7) || "<1"}–${Math.round(hi / 7)} wk` : `${lo}–${hi} days`;
+  if (hi < 14) return `${lo}–${hi} days`;
+  if (lo >= 14) return `${Math.round(lo / 7)}–${Math.round(hi / 7)} wk`;
+  return `${unit(lo)}–${unit(hi)}`;
 }
 
 export const APPROVAL_LABEL: Record<Guide["time"]["approvalWait"]["required"], string> = {

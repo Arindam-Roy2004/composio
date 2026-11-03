@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "slug": "linkedin",
+  "appName": "LinkedIn",
+  "website": "https://www.linkedin.com",
+  "category": "Social",
+  "generatedAt": "2026-11-03T00:00:00.000Z",
+  "generatedBy": "library",
+  "oauthSupport": "oauth2",
+  "verdict": {
+    "difficulty": "gated",
+    "oneLiner": "Sign-in and posting are self-serve. Almost everything else (marketing, sales, talent) needs partner approval, and compliance access is closed.",
+    "evidence": "documented",
+    "sourceIds": [
+      "s1"
+    ]
+  },
+  "time": {
+    "activeSetup": {
+      "minMinutes": 15,
+      "maxMinutes": 45,
+      "evidence": "uncertain",
+      "sourceIds": []
+    },
+    "approvalWait": {
+      "required": "for_some_scopes",
+      "minDays": null,
+      "maxDays": null,
+      "note": "Open permissions need no approval. Most other permissions and partner programmes require explicit approval from LinkedIn; no timeline is published and approval isn't guaranteed.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    }
+  },
+  "prerequisites": [
+    {
+      "id": "developer-app",
+      "label": "A LinkedIn developer application",
+      "detail": "Create or select an app in the LinkedIn Developer Portal.",
+      "kind": "account",
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ]
+    },
+    {
+      "id": "linkedin-page",
+      "label": "A LinkedIn Page for your company",
+      "detail": "We believe app creation asks you to associate a LinkedIn Page, but the pages we read don't say so. TODO(human): confirm during app creation.",
+      "kind": "business",
+      "evidence": "uncertain",
+      "sourceIds": []
+    },
+    {
+      "id": "https-callback",
+      "label": "An absolute HTTPS callback URL",
+      "detail": "Redirect URLs must be absolute HTTPS URLs without '#'. Query parameters are ignored.",
+      "kind": "technical",
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "create-app",
+      "order": 1,
+      "title": "Create an app in the Developer Portal",
+      "body": "Create a new application or select an existing one.",
+      "owner": "human",
+      "phase": "create",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ],
+      "url": "https://www.linkedin.com/developers/apps"
+    },
+    {
+      "id": "add-products",
+      "order": 2,
+      "title": "Add self-serve products",
+      "body": "Under the Products tab, add Sign in with LinkedIn using OpenID Connect (profile, email) and/or Share on LinkedIn (w_member_social).",
+      "owner": "human",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "id": "auth-tab",
+      "order": 3,
+      "title": "Configure the Auth tab",
+      "body": "Copy the client ID and secret and add your HTTPS redirect URL. Never send the secret in URLs.",
+      "owner": "human",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ]
+    },
+    {
+      "id": "implement",
+      "order": 4,
+      "title": "Implement the 3-legged flow",
+      "body": "Send members to https://www.linkedin.com/oauth/v2/authorization, then POST the code to https://www.linkedin.com/oauth/v2/accessToken within 30 minutes. Verify state.",
+      "owner": "agent",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ],
+      "agentCanHelp": "Writes the authorization and token exchange."
+    },
+    {
+      "id": "partner-apply",
+      "order": 5,
+      "title": "Apply for partner programmes if you need them",
+      "body": "Advertising API is requested from the Products tab; Sales Navigator (SNAP) and Talent integrations have their own applications. Approval is required and may not be granted.",
+      "owner": "provider",
+      "phase": "review",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    }
+  ],
+  "scopes": [
+    {
+      "name": "profile",
+      "tier": "basic",
+      "triggersReview": false,
+      "note": "Open permission via Sign in with LinkedIn using OpenID Connect.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "name": "email",
+      "tier": "basic",
+      "triggersReview": false,
+      "note": "Open permission via Sign in with LinkedIn using OpenID Connect.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "name": "w_member_social",
+      "tier": "basic",
+      "triggersReview": false,
+      "note": "Open permission: post, comment and like on behalf of the member.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "name": "r_sales_nav_analytics",
+      "tier": "restricted",
+      "triggersReview": true,
+      "note": "Requires SNAP partner approval.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "name": "r_compliance",
+      "tier": "restricted",
+      "triggersReview": true,
+      "note": "Closed. Can't be requested.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    }
+  ],
+  "nuances": [
+    {
+      "id": "all-or-nothing",
+      "title": "Members must accept every requested scope",
+      "body": "Users can't pick individual scopes, so request as few as possible.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ]
+    },
+    {
+      "id": "token-lifetime",
+      "title": "Access tokens last 60 days",
+      "body": "Programmatic refresh tokens are only available to a limited set of partners; others re-run the flow, which skips the consent screen if the member is still logged in.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ]
+    },
+    {
+      "id": "scope-change",
+      "title": "Changing scopes invalidates old tokens",
+      "body": "Requesting a different scope invalidates all previous access tokens, and changed app scopes require users to re-authenticate.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "id": "invalid-scope",
+      "title": "401 Invalid scope",
+      "symptom": "Authorization fails for a scope you requested.",
+      "fix": "The scope's product isn't enabled for your app. Add the product, or apply for the partner programme.",
+      "severity": "high",
+      "stepId": "add-products",
+      "evidence": "documented",
+      "sourceIds": [
+        "s2",
+        "s1"
+      ]
+    },
+    {
+      "id": "redirect-mismatch",
+      "title": "Redirect_uri doesn't match",
+      "symptom": "401 on authorization.",
+      "fix": "Use the exact absolute HTTPS URL configured on the Auth tab.",
+      "severity": "medium",
+      "stepId": "auth-tab",
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ]
+    },
+    {
+      "id": "partner-denied",
+      "title": "Partner access not granted",
+      "symptom": "Marketing, sales or talent permissions stay unavailable.",
+      "fix": "Re-scope to open permissions or work with an approved partner. There is no self-serve path.",
+      "severity": "high",
+      "stepId": "partner-apply",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    }
+  ],
+  "ownership": {
+    "agentCan": [
+      "Write the 3-legged OAuth flow",
+      "Track the 60-day token expiry",
+      "Keep requested scopes minimal"
+    ],
+    "humanMust": [
+      "Create the app and add products",
+      "Apply for partner programmes",
+      "Accept LinkedIn's API terms"
+    ]
+  },
+  "unknowns": [
+    "Active setup time (15–45 min) is our estimate. TODO(human): time a real setup.",
+    "Partner approval timelines and acceptance criteria are not published.",
+    "Whether a LinkedIn Page is required to create an app is unconfirmed. TODO(human)."
+  ],
+  "sources": [
+    {
+      "id": "s1",
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+      "title": "Getting access to LinkedIn APIs",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s2",
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
+      "title": "LinkedIn 3-legged OAuth flow",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    }
+  ]
+}

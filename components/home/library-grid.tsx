@@ -50,8 +50,8 @@ export function LibraryGrid({ library, generated }: { library: GuideSummary[]; g
         </div>
         <p className="text-xs text-subtle-foreground">
           <SealCheck size={13} weight="duotone" className="mr-1 inline text-ev-tested" />
-          Library guides are human-reviewed. <Sparkle size={13} weight="duotone" className="mr-1 ml-2 inline" />
-          Others are AI-generated.
+          Library: researched by hand from official docs. <Sparkle size={13} weight="duotone" className="mr-1 ml-2 inline" />
+          Others: AI-generated.
         </p>
       </div>
 
@@ -69,9 +69,8 @@ export function LibraryGrid({ library, generated }: { library: GuideSummary[]; g
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">No guide matches “{FILTERS[filter].label}”. Research an app above and it will appear here.</p>
           </motion.div>
         ) : (
-          <motion.ul key="grid" layout={!reduce} className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          <motion.ul key="grid" layout={!reduce} className="mt-6 grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {items.map(({ g, lib }, i) => {
-              const wide = filter === "all" && lib && (i === 0 || i === 1);
               return (
                 <motion.li
                   key={g.slug}
@@ -81,12 +80,15 @@ export function LibraryGrid({ library, generated }: { library: GuideSummary[]; g
                   viewport={{ once: true, margin: "-40px" }}
                   exit={reduce ? undefined : { opacity: 0, scale: 0.97 }}
                   transition={{ duration: 0.4, delay: reduce ? 0 : Math.min(i, 8) * 0.04, ease }}
-                  className={cn("lg:col-span-2", wide && "lg:col-span-3")}
+                  className="h-full"
                 >
-                  <GuideCard g={g} lib={lib} wide={wide} />
+                  <GuideCard g={g} lib={lib} />
                 </motion.li>
               );
             })}
+            <motion.li key="cta" layout={!reduce} className="h-full">
+              <ResearchCard />
+            </motion.li>
           </motion.ul>
         )}
       </AnimatePresence>
@@ -94,7 +96,32 @@ export function LibraryGrid({ library, generated }: { library: GuideSummary[]; g
   );
 }
 
-function GuideCard({ g, lib, wide }: { g: GuideSummary; lib: boolean; wide: boolean }) {
+function ResearchCard() {
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const input = document.getElementById("generate-input") as HTMLInputElement | null;
+        input?.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => input?.focus({ preventScroll: true }), 350);
+      }}
+      className="group relative flex h-full min-h-[228px] w-full flex-col items-start justify-between overflow-hidden rounded-2xl border border-dashed border-border-strong p-5 text-left transition-colors hover:border-brand/50 hover:bg-brand/[0.04]"
+    >
+      <span className="flex size-10 items-center justify-center rounded-xl bg-brand/10 text-brand ring-1 ring-brand/20 transition-transform duration-300 group-hover:scale-105">
+        <MagnifyingGlass size={18} weight="duotone" />
+      </span>
+      <span>
+        <span className="block text-base font-semibold tracking-tight">Research any app</span>
+        <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">Type a name or website. The agent reads the docs, probes the console and writes a guide in about two minutes.</span>
+      </span>
+      <span className="flex items-center gap-1 text-xs font-medium text-brand">
+        Start researching <ArrowUpRight size={12} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+      </span>
+    </button>
+  );
+}
+
+function GuideCard({ g, lib }: { g: GuideSummary; lib: boolean }) {
   return (
     <Link href={`/guide/${g.slug}`} className="group block h-full rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2">
       <MagicCard
@@ -105,13 +132,13 @@ function GuideCard({ g, lib, wide }: { g: GuideSummary; lib: boolean; wide: bool
         gradientFrom="var(--brand)"
         gradientTo="var(--ev-community)"
       >
-        <div className={cn("flex h-full flex-col p-5", wide && "sm:p-6")}>
+        <div className="flex h-full min-h-[228px] flex-col p-5">
           <div className="flex items-start gap-3">
-            <AppLogo name={g.appName} website={g.website} size={wide ? 44 : 38} />
+            <AppLogo name={g.appName} website={g.website} size={40} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <h3 className={cn("truncate font-semibold tracking-tight", wide ? "text-lg" : "text-base")}>{g.appName}</h3>
-                {lib ? <SealCheck size={15} weight="fill" className="shrink-0 text-ev-tested" aria-label="Human-reviewed library guide" /> : <Sparkle size={14} weight="duotone" className="shrink-0 text-subtle-foreground" aria-label="AI-generated" />}
+                <h3 className="truncate text-base font-semibold tracking-tight">{g.appName}</h3>
+                {lib ? <SealCheck size={15} weight="fill" className="shrink-0 text-ev-tested" aria-label="Library guide, researched from official docs" /> : <Sparkle size={14} weight="duotone" className="shrink-0 text-subtle-foreground" aria-label="AI-generated" />}
               </div>
               <p className="truncate text-xs text-subtle-foreground">{g.category}</p>
             </div>
@@ -119,7 +146,7 @@ function GuideCard({ g, lib, wide }: { g: GuideSummary; lib: boolean; wide: bool
               <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </span>
           </div>
-          <p className={cn("mt-4 text-sm leading-relaxed text-muted-foreground", wide ? "line-clamp-3" : "line-clamp-2")}>{g.oneLiner}</p>
+          <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{g.oneLiner}</p>
           <div className="mt-auto pt-5">
             <DifficultyMeter difficulty={g.difficulty} compact />
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-subtle-foreground">

@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 1,
+  "slug": "gmail",
+  "appName": "Google (Gmail)",
+  "website": "https://developers.google.com/workspace/gmail",
+  "category": "Email",
+  "generatedAt": "2026-11-03T00:00:00.000Z",
+  "generatedBy": "library",
+  "oauthSupport": "oauth2_pkce",
+  "verdict": {
+    "difficulty": "hard",
+    "oneLiner": "Credentials take minutes, but reading mail uses restricted scopes: OAuth verification (about 6 weeks) plus an annual third-party security assessment.",
+    "evidence": "documented",
+    "sourceIds": [
+      "s4",
+      "s3",
+      "s6"
+    ]
+  },
+  "time": {
+    "activeSetup": {
+      "minMinutes": 30,
+      "maxMinutes": 120,
+      "evidence": "uncertain",
+      "sourceIds": []
+    },
+    "approvalWait": {
+      "required": "for_some_scopes",
+      "minDays": 3,
+      "maxDays": 42,
+      "note": "Google's estimates, not guaranteed: brand verification 2–3 business days, sensitive scopes about 10 business days, restricted scopes about 6 weeks. The security assessment is extra and yearly.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s4"
+      ]
+    }
+  },
+  "prerequisites": [
+    {
+      "id": "domain",
+      "label": "A domain you own, verified in Search Console",
+      "detail": "Every domain in the consent screen's Authorized domains must be verified by a project owner or editor in Google Search Console.",
+      "kind": "domain",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "id": "homepage-privacy",
+      "label": "A real homepage and privacy policy on that domain",
+      "detail": "The homepage must describe the app and link the privacy policy; it can't be only a login page. The same privacy policy must be linked from the consent screen.",
+      "kind": "legal",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "id": "demo-video",
+      "label": "A demo video (sensitive/restricted scopes)",
+      "detail": "Must show the end-to-end flow including the full consent screen in English with the same scopes.",
+      "kind": "other",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "id": "assessor",
+      "label": "Budget and time for a security assessment (restricted scopes)",
+      "detail": "Needed yearly from a Google-empanelled assessor if you store or transmit restricted-scope data. Google charges nothing; assessor pricing is between you and them.",
+      "kind": "payment",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3",
+        "s4",
+        "s6"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "create-project",
+      "order": 1,
+      "title": "Create a Cloud project and OAuth client",
+      "body": "Get OAuth 2.0 credentials for a web application from the Google API Console.",
+      "owner": "human",
+      "phase": "create",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ],
+      "url": "https://console.developers.google.com/"
+    },
+    {
+      "id": "consent-screen",
+      "order": 2,
+      "title": "Configure the consent screen",
+      "body": "Add app name, homepage, privacy policy and authorized domains. Scopes are categorised as non-sensitive, sensitive or restricted automatically when you add them.",
+      "owner": "human",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s2",
+        "s3"
+      ],
+      "agentCanHelp": "Drafts the scope justifications Google asks for."
+    },
+    {
+      "id": "pick-scopes",
+      "order": 3,
+      "title": "Pick the narrowest Gmail scopes",
+      "body": "gmail.labels is non-sensitive, gmail.send is sensitive, and gmail.readonly, gmail.modify, gmail.compose, gmail.metadata and full mail access are restricted. You must explain why narrower scopes won't work.",
+      "owner": "agent",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s6",
+        "s3"
+      ],
+      "agentCanHelp": "Maps your features to the least-privileged scopes."
+    },
+    {
+      "id": "implement",
+      "order": 4,
+      "title": "Implement OAuth with incremental scopes",
+      "body": "Request scopes when they're needed rather than up front. Keep requested scopes identical to the consent screen to avoid the unverified-app screen.",
+      "owner": "agent",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1",
+        "s5"
+      ],
+      "agentCanHelp": "Writes the auth flow and token handling."
+    },
+    {
+      "id": "test-mode",
+      "order": 5,
+      "title": "Develop in Testing status",
+      "body": "Apps in development don't need verification, but in Testing status refresh tokens expire after 7 days unless you only ask for name, email and profile.",
+      "owner": "human",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s5",
+        "s1"
+      ]
+    },
+    {
+      "id": "verification",
+      "order": 6,
+      "title": "Submit for verification",
+      "body": "Brand verification takes about 2–3 business days, sensitive scopes about 10 business days, restricted scopes about 6 weeks. Google says these aren't guaranteed.",
+      "owner": "provider",
+      "phase": "review",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s4",
+        "s2"
+      ]
+    },
+    {
+      "id": "security-assessment",
+      "order": 7,
+      "title": "Pass the security assessment (restricted scopes)",
+      "body": "Complete an annual assessment from a Google-empanelled assessor, and re-verify restricted-scope access every year.",
+      "owner": "provider",
+      "phase": "review",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s3",
+        "s2",
+        "s4"
+      ]
+    }
+  ],
+  "scopes": [
+    {
+      "name": "gmail.labels",
+      "tier": "basic",
+      "triggersReview": false,
+      "note": "Non-sensitive.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s6"
+      ]
+    },
+    {
+      "name": "gmail.send",
+      "tier": "sensitive",
+      "triggersReview": true,
+      "note": "Sensitive: verification with justification and demo video.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s6",
+        "s3"
+      ]
+    },
+    {
+      "name": "gmail.readonly",
+      "tier": "restricted",
+      "triggersReview": true,
+      "note": "Restricted: verification plus security assessment if you store or transmit the data.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s6"
+      ]
+    },
+    {
+      "name": "gmail.metadata",
+      "tier": "restricted",
+      "triggersReview": true,
+      "note": "Restricted, even though it excludes message bodies.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s6"
+      ]
+    },
+    {
+      "name": "gmail.modify",
+      "tier": "restricted",
+      "triggersReview": true,
+      "note": "Restricted.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s6"
+      ]
+    },
+    {
+      "name": "gmail.compose",
+      "tier": "restricted",
+      "triggersReview": true,
+      "note": "Restricted.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s6"
+      ]
+    },
+    {
+      "name": "https://mail.google.com/",
+      "tier": "restricted",
+      "triggersReview": true,
+      "note": "Full mailbox access. Restricted.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s6"
+      ]
+    }
+  ],
+  "nuances": [
+    {
+      "id": "user-cap",
+      "title": "Unverified apps are capped at 100 new users, forever",
+      "body": "Unverified apps using sensitive or restricted scopes are limited to 100 new users over the project's lifetime. The cap can't be reset.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s4",
+        "s5"
+      ]
+    },
+    {
+      "id": "testing-refresh",
+      "title": "Testing status: refresh tokens die after 7 days",
+      "body": "Expect users to re-consent weekly while the app is in Testing.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "id": "token-limit",
+      "title": "100 refresh tokens per account per client",
+      "body": "Issuing more silently invalidates the oldest. Refresh tokens also stop working after six months unused.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "id": "internal-exempt",
+      "title": "Internal apps are exempt",
+      "body": "Apps used only inside one Cloud Organization don't need verification.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s5"
+      ]
+    },
+    {
+      "id": "annual",
+      "title": "Restricted access is re-verified annually",
+      "body": "Plan for the assessment and re-verification every year, not just once.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s2",
+        "s3"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "id": "unverified-screen",
+      "title": "Users see an 'unverified app' warning",
+      "symptom": "A warning appears before the consent screen.",
+      "fix": "Make requested scopes match the consent screen and complete verification.",
+      "severity": "high",
+      "stepId": "verification",
+      "evidence": "documented",
+      "sourceIds": [
+        "s5"
+      ]
+    },
+    {
+      "id": "rejected-justification",
+      "title": "Verification rejected for scope justification",
+      "symptom": "Google asks why narrower scopes won't work.",
+      "fix": "Request only the narrowest scopes and explain, per scope, why a narrower one is insufficient.",
+      "severity": "high",
+      "stepId": "pick-scopes",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "id": "domain-unverified",
+      "title": "Authorized domain not verified",
+      "symptom": "Submission blocked on domain ownership.",
+      "fix": "Have a project owner or editor verify each domain in Google Search Console.",
+      "severity": "medium",
+      "stepId": "consent-screen",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "id": "weekly-reauth",
+      "title": "Users must reconnect every week",
+      "symptom": "Refresh tokens fail after 7 days.",
+      "fix": "Your project is in Testing status; publish it (and verify) for long-lived refresh tokens.",
+      "severity": "medium",
+      "stepId": "test-mode",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    }
+  ],
+  "ownership": {
+    "agentCan": [
+      "Map features to the narrowest scopes",
+      "Draft per-scope justifications",
+      "Write the OAuth flow with incremental auth"
+    ],
+    "humanMust": [
+      "Verify domains in Search Console",
+      "Publish homepage and privacy policy",
+      "Record the demo video",
+      "Engage a security assessor"
+    ]
+  },
+  "unknowns": [
+    "Active setup time (30–120 min) is our estimate. TODO(human): time a Testing-mode setup.",
+    "Security assessment duration and cost depend on the assessor; Google publishes neither.",
+    "Test-user limits for Testing status were not covered by the pages we read."
+  ],
+  "sources": [
+    {
+      "id": "s1",
+      "url": "https://developers.google.com/identity/protocols/oauth2",
+      "title": "Using OAuth 2.0 to access Google APIs",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s2",
+      "url": "https://support.google.com/cloud/answer/13463073",
+      "title": "OAuth app verification",
+      "kind": "policy",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s3",
+      "url": "https://support.google.com/cloud/answer/13464321",
+      "title": "Verification requirements",
+      "kind": "policy",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s4",
+      "url": "https://support.google.com/cloud/answer/13463817",
+      "title": "OAuth verification FAQ",
+      "kind": "policy",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s5",
+      "url": "https://support.google.com/cloud/answer/7454865",
+      "title": "Unverified apps",
+      "kind": "policy",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s6",
+      "url": "https://developers.google.com/workspace/gmail/api/auth/scopes",
+      "title": "Choose Gmail API scopes",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    }
+  ]
+}

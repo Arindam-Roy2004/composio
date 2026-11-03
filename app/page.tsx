@@ -29,13 +29,12 @@ export default async function Home() {
     log.error("listGuides failed", { error: err instanceof Error ? err.message : String(err) });
     return null;
   });
-  const featured = lists?.library[0] ? await getGuide(lists.library[0].slug) : null;
-  const all = [...(lists?.library ?? []), ...(lists?.generated ?? [])];
+  const featured = (await getGuide("gmail")) ?? (lists?.library[0] ? await getGuide(lists.library[0].slug) : null);
 
   return (
     <>
       <section className="relative -mt-[60px] overflow-hidden pt-[60px]" aria-labelledby="hero-title">
-        <HeroBackdrop guides={all} />
+        <HeroBackdrop />
         <div className="relative mx-auto max-w-3xl px-4 pt-20 pb-24 text-center sm:px-6 sm:pt-28 sm:pb-32">
           <Reveal>
             <h1 id="hero-title" className="text-gradient text-display font-semibold text-balance">
@@ -67,7 +66,7 @@ export default async function Home() {
             id="library-title"
             eyebrow="Library"
             title="Five apps, five very different setup stories"
-            body="Picked to cover the whole range, from a two-minute registration to partner programmes that can say no. Each has been reviewed against the provider’s docs."
+            body="Picked to cover the whole range, from a two-minute registration to partner programmes that can say no. Each was researched by hand from the provider’s official docs, with every claim cited."
           />
           <div className="mt-10">
             {lists ? (

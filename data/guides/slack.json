@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "slug": "slack",
+  "appName": "Slack",
+  "website": "https://slack.com",
+  "category": "Communication",
+  "generatedAt": "2026-11-03T00:00:00.000Z",
+  "generatedBy": "library",
+  "oauthSupport": "oauth2",
+  "verdict": {
+    "difficulty": "moderate",
+    "oneLiner": "Easy to create and install in your own workspace. Other workspaces need public distribution, and unlisted commercial apps get heavily rate-limited message history.",
+    "evidence": "documented",
+    "sourceIds": [
+      "s1",
+      "s2",
+      "s3"
+    ]
+  },
+  "time": {
+    "activeSetup": {
+      "minMinutes": 20,
+      "maxMinutes": 60,
+      "evidence": "uncertain",
+      "sourceIds": []
+    },
+    "approvalWait": {
+      "required": "for_public_use",
+      "minDays": null,
+      "maxDays": null,
+      "note": "Unlisted public distribution needs no review. Listing in the Slack Marketplace (recommended for commercial apps) is reviewed; Slack publishes no timeline.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s2"
+      ]
+    }
+  },
+  "prerequisites": [
+    {
+      "id": "slack-workspace",
+      "label": "A Slack workspace that will own the app",
+      "detail": "Until you enable distribution the app can only be installed on the workspace that owns it.",
+      "kind": "account",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "id": "https-endpoints",
+      "label": "HTTPS endpoints",
+      "detail": "Redirect URLs must use HTTPS and can't contain '#'. To distribute, all OAuth, interaction, options-load and Events API URLs must support SSL.",
+      "kind": "technical",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1",
+        "s2"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "create-app",
+      "order": 1,
+      "title": "Create the app and note its credentials",
+      "body": "Create the app, then find the client ID, scopes and Redirect URLs on its App Management page.",
+      "owner": "human",
+      "phase": "create",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "id": "choose-scopes",
+      "order": 2,
+      "title": "Choose bot and user scopes",
+      "body": "Bot scopes go in the scope parameter; user scopes go in user_scope and come back under authed_user. Sign in with Slack scopes need their own flow.",
+      "owner": "agent",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ],
+      "agentCanHelp": "Picks the minimum bot/user scopes for your features."
+    },
+    {
+      "id": "redirects",
+      "order": 3,
+      "title": "Add HTTPS redirect URLs",
+      "body": "The redirect_uri must use HTTPS, must not contain '#', and must match or be a subdirectory of a configured Redirect URL.",
+      "owner": "human",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "id": "implement-oauth",
+      "order": 4,
+      "title": "Implement OAuth v2",
+      "body": "Send users to https://slack.com/oauth/v2/authorize and exchange the code with oauth.v2.access. Check team.id or enterprise.id in the response rather than trusting the team hint.",
+      "owner": "agent",
+      "phase": "configure",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ],
+      "agentCanHelp": "Writes the install flow and per-workspace token storage."
+    },
+    {
+      "id": "distribute",
+      "order": 5,
+      "title": "Activate public distribution",
+      "body": "Complete the distribution checklist to get an Add to Slack button and a shareable install URL. Without it, installs on other workspaces fail with invalid_team_for_non_distributed_app.",
+      "owner": "human",
+      "phase": "launch",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s2",
+        "s1"
+      ]
+    },
+    {
+      "id": "marketplace",
+      "order": 6,
+      "title": "Submit to the Slack Marketplace (commercial apps)",
+      "body": "Marketplace apps are reviewed against Slack's requirements and guidelines. Unlisted commercial apps keep working but get reduced rate limits on message history.",
+      "owner": "provider",
+      "phase": "review",
+      "estMinutes": null,
+      "evidence": "documented",
+      "sourceIds": [
+        "s2",
+        "s3"
+      ]
+    }
+  ],
+  "scopes": [
+    {
+      "name": "channels:history",
+      "tier": "sensitive",
+      "triggersReview": null,
+      "note": "Reads channel messages via conversations.history, which is throttled for new unlisted commercial apps.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "name": "chat:write",
+      "tier": "basic",
+      "triggersReview": null,
+      "note": "Post messages as the bot. Review applies to Marketplace listing, not individual scopes, as far as our sources say.",
+      "evidence": "uncertain",
+      "sourceIds": []
+    }
+  ],
+  "nuances": [
+    {
+      "id": "tokens-dont-expire",
+      "title": "Tokens don't expire unless you opt into rotation",
+      "body": "Bot (xoxb-) and user (xoxp-) tokens don't expire and can only be revoked. With token rotation you get a refresh token and an expiring access token.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    },
+    {
+      "id": "rate-limits",
+      "title": "Unlisted commercial apps: 1 request/minute on history",
+      "body": "Since 29 May 2025, new commercially distributed apps outside the Marketplace get Tier 1 limits on conversations.history and conversations.replies: 1 request per minute, max 15 objects. Marketplace and internal apps are not affected.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "id": "unapproved-scope",
+      "title": "Published apps can't add unreviewed scopes",
+      "body": "Requesting scopes that are still under review or were never submitted returns unapproved_scope.",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "id": "non-distributed",
+      "title": "invalid_team_for_non_distributed_app",
+      "symptom": "Installing on another workspace fails.",
+      "fix": "Activate public distribution for the app.",
+      "severity": "high",
+      "stepId": "distribute",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1",
+        "s2"
+      ]
+    },
+    {
+      "id": "history-throttled",
+      "title": "Reading message history is extremely slow",
+      "symptom": "conversations.history returns at most 15 messages and you hit rate limits at 1 request/minute.",
+      "fix": "Get listed in the Slack Marketplace, or build as an internal app for a single customer.",
+      "severity": "high",
+      "stepId": "marketplace",
+      "evidence": "documented",
+      "sourceIds": [
+        "s3"
+      ]
+    },
+    {
+      "id": "redirect-https",
+      "title": "Redirect URL rejected",
+      "symptom": "OAuth fails on redirect.",
+      "fix": "Use an HTTPS redirect URL without '#' that matches a configured Redirect URL.",
+      "severity": "medium",
+      "stepId": "redirects",
+      "evidence": "documented",
+      "sourceIds": [
+        "s1"
+      ]
+    }
+  ],
+  "ownership": {
+    "agentCan": [
+      "Choose minimal bot and user scopes",
+      "Write the OAuth v2 install flow",
+      "Store tokens per workspace and enterprise"
+    ],
+    "humanMust": [
+      "Create the app and set redirect URLs",
+      "Activate public distribution",
+      "Submit the Marketplace listing"
+    ]
+  },
+  "unknowns": [
+    "Active setup time (20–60 min) is our estimate. TODO(human): time a real setup.",
+    "Slack does not publish a Marketplace review timeline in the pages we read.",
+    "Whether localhost redirect URLs are allowed isn't stated; HTTPS is required."
+  ],
+  "sources": [
+    {
+      "id": "s1",
+      "url": "https://docs.slack.dev/authentication/installing-with-oauth",
+      "title": "Installing with OAuth",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s2",
+      "url": "https://docs.slack.dev/app-management/distribution",
+      "title": "Distributing your app",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    },
+    {
+      "id": "s3",
+      "url": "https://docs.slack.dev/changelog/2025/05/29/rate-limit-changes-for-non-marketplace-apps",
+      "title": "Rate limit changes for non-Marketplace apps",
+      "kind": "official_docs",
+      "fetchedAt": "2026-11-03T00:00:00.000Z"
+    }
+  ]
+}
