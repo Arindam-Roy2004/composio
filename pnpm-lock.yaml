@@ -35,9 +35,6 @@ importers:
       cn:
         specifier: ^0.5.2
         version: 0.5.2
-      context.dev:
-        specifier: ^3.23.0
-        version: 3.23.0
       geist:
         specifier: ^1.9.0
         version: 1.9.0(next@15.5.28(@babel/core@7.29.7)(@playwright/test@1.64.1)(@types/node@20.19.43)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
@@ -2254,9 +2251,6 @@ packages:
   conf@10.2.0:
     resolution: {integrity: sha512-8fLl9F04EJqjSqH+QjITQfJF8BrOVaYr1jewVgSRAEWePfxT0sku4w2hrGQ60BC/TNLGQ2pgxNlTbWQmMPFvXg==}
     engines: {node: '>=12'}
-
-  context.dev@3.23.0:
-    resolution: {integrity: sha512-DDLrHEAdHsgMlppZMRT10YmTMin8faCyQLitwTArQvNqBd/Gz6tQZsRJmndUIa38xRYaz5NwB8gAqbKO8bfKLg==}
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
@@ -6387,8 +6381,6 @@ snapshots:
       onetime: 5.1.2
       pkg-up: 3.1.0
       semver: 7.8.6
-
-  context.dev@3.23.0: {}
 
   convert-source-map@2.0.0: {}
 
